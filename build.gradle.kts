@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val tgbotapi_version: String by project
+val arrow_version: String by project
+val kotlin_logging: String by project
 val kotlinx_coroutines: String by project
 val ktor_version: String by project
-val kotlin_logging: String by project
-val arrow_version: String by project
+val logback_version: String by project
+val tgbotapi_version: String by project
 
 plugins {
     kotlin("jvm") version "1.5.30"
@@ -23,6 +24,7 @@ dependencies {
     implementation("dev.inmo:tgbotapi:$tgbotapi_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.arrow-kt:arrow-core:$arrow_version")
+    implementation("ch.qos.logback:logback-classic:$logback_version")
 }
 
 tasks.withType<KotlinCompile> {
