@@ -11,6 +11,7 @@ import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import framework.BooleanFilter
 import framework.EventTrigger
+import framework.register
 import framework.toListOption
 
 
