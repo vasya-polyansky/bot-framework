@@ -2,7 +2,7 @@ package framework
 
 
 // TODO: Maybe make this context customizable
-data class FilterContext<TEvent : Any>(
+data class SelectorContext<TEvent : Any>(
     val pipeline: EventPipeline<TEvent>,
 )
 
@@ -14,8 +14,8 @@ interface Registrar<TEvent : Any, TEventContext> {
  * The order of parameters is strict
  */
 fun <TEvent : Any, TEventContext, R> Registrar<TEvent, TEventContext>.register(
-    trigger: EventTrigger<TEventContext, R>,
-    selector: ConvertingFilter<TEvent, R>,
+    trigger: Trigger<TEventContext, R>,
+    selector: Selector<TEvent, R>,
 ) {
     register(Handler(selector, trigger))
 }

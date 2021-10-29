@@ -3,9 +3,9 @@ package framework
 import arrow.core.Option
 
 /**
- * Iterable is used here because we can get multiple filtering results from one incoming event
+ * Iterable is used here because we can get multiple selector results from one incoming event
  */
-typealias ConvertingFilter<TEvent, R> = suspend FilterContext<TEvent>.(TEvent) -> Option<Iterable<R>>
-typealias BooleanFilter <TEvent> = suspend (TEvent) -> Boolean
+typealias Selector<TEvent, R> = suspend SelectorContext<TEvent>.(TEvent) -> Option<Iterable<R>>
+typealias Filter <TEvent> = suspend (TEvent) -> Boolean
 
-typealias EventTrigger<TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Unit
+typealias Trigger<TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Unit

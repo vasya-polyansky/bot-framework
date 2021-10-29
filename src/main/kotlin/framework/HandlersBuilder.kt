@@ -14,15 +14,15 @@ class HandlersBuilder<TEvent : Any, TEventContext> : Registrar<TEvent, TEventCon
 
 
 data class Handler<TEvent : Any, TEventContext, R>(
-    val selector: ConvertingFilter<TEvent, R>,
-    val trigger: EventTrigger<TEventContext, R>,
+    val selector: Selector<TEvent, R>,
+    val trigger: Trigger<TEventContext, R>,
 )
 
-suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.filterAndTrigger(
+suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.selectAndTrigger(
     event: TEvent,
-    filterContext: FilterContext<TEvent>,
+    selectorContext: SelectorContext<TEvent>,
     eventContext: TEventContext,
 ): Option<Unit> =
-    selector(filterContext, event).map { filterResults ->
-        filterResults.forEach { trigger(eventContext, it) }
+    selector(selectorContext, event).map { selectedResults ->
+        selectedResults.forEach { trigger(eventContext, it) }
     }

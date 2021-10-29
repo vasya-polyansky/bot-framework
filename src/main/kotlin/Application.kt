@@ -50,6 +50,7 @@ fun main() = runBlocking(Dispatchers.IO) {
     )
 
     // TODO: Remove duplication of event context creation blocks
+    // TODO: Add fallback handlers section
     // The order in which EventHandling and FsmFeature are registered is important
     // because they are using the same pipeline phase.
     dispatcher.apply {

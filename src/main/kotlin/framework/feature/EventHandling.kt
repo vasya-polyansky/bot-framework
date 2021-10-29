@@ -14,7 +14,7 @@ class EventHandling<TEvent : Any, TEventContext>(
             .apply(configure)
             .build()
 
-        val filterContext = FilterContext(pipeline)
+        val selectorContext = SelectorContext(pipeline)
 
         pipeline.intercept(EventPipeline.Event) {
             val event = context
@@ -22,9 +22,9 @@ class EventHandling<TEvent : Any, TEventContext>(
 
             for (handler in handlers) {
                 // TODO: parallelize this flow iterations via markers
-                val result = handler.filterAndTrigger(
+                val result = handler.selectAndTrigger(
                     event = event,
-                    filterContext = filterContext,
+                    selectorContext = selectorContext,
                     eventContext = eventContext
                 )
                 if (result.isNotEmpty()) {
