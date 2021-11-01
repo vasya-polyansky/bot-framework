@@ -2,12 +2,13 @@ package framework.framework.handlers
 
 import framework.framework.stateStore.StateStore
 import framework.feature.fsm.State
-import framework.feature.fsm.StateRegistrar
-import framework.feature.fsm.StateTokenMap
+import framework.framework.feature.fsm.StateRegistrar
+import framework.framework.feature.fsm.StateTokenMap
 
 class StateHandlersBuilder<TEvent : Any, TEventContext, TToken>(
+    private val currentState: State<TEvent, TEventContext>,
     private val stateStore: StateStore<TEventContext, TToken>,
-    private val stateTokenMap: StateTokenMap<TEvent, TEventContext, TToken>,
+    private val stateTokenMap: StateTokenMap<TToken>,
 ) : StateRegistrar<TEvent, TEventContext> {
     private val handlers = mutableSetOf<Handler<TEvent, TEventContext, *>>()
 
@@ -17,9 +18,12 @@ class StateHandlersBuilder<TEvent : Any, TEventContext, TToken>(
 
     fun build(): Iterable<Handler<TEvent, TEventContext, *>> = handlers
 
-    override suspend fun TEventContext.setState(state: State<TEvent, TEventContext>) {
-        // TODO: Call lifecycle methods
-        val token = stateTokenMap.getToken(state)
+    override suspend fun TEventContext.setState(nextState: State<TEvent, TEventContext>) {
+        val token = stateTokenMap.getToken(nextState)
+
+        currentState.dispose?.invoke(this)
+        nextState.init?.invoke(this)
+
         stateStore.setState(this, token)
     }
 }

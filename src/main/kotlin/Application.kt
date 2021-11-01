@@ -30,19 +30,23 @@ val fsm = TelegramFsm()
 // Required to annotate some states where the type checker can't do the type inference
 typealias TelegramState = State<Update, TelegramSendingContext>
 
-// TODO: Implement setState method
-// TODO: Implement lifecycle methods
-val First: TelegramState = fsm.state {
-    onText("first") {
-        sendMessage("First State")
+val First: TelegramState = fsm.state(
+    init = { sendMessage("Initializing first state") },
+    dispose = { sendMessage("Disposing first state") },
+) {
+    onText("to second") {
+        sendMessage("You're in first state")
         setState(Second)
     }
 }
 
 
-val Second = fsm.state {
-    onText("second") {
-        sendMessage("Second State")
+val Second = fsm.state(
+    init = { sendMessage("Initializing second state") },
+    dispose = { sendMessage("Disposing second state") },
+) {
+    onText("to first") {
+        sendMessage("This message from second state")
         setState(First)
     }
 }
