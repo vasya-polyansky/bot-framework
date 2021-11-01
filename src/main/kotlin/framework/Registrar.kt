@@ -3,10 +3,6 @@ package framework
 import framework.framework.handlers.Handler
 
 
-data class SelectorContext<TEvent : Any>(
-    val pipeline: EventPipeline<TEvent>,
-)
-
 interface Registrar<TEvent : Any, TEventContext> {
     fun <R> register(handler: Handler<TEvent, TEventContext, R>)
 }

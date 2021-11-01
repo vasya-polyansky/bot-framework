@@ -40,7 +40,6 @@ val First: TelegramState = fsm.state(
     }
 }
 
-
 val Second = fsm.state(
     init = { sendMessage("Initializing second state") },
     dispose = { sendMessage("Disposing second state") },
@@ -66,9 +65,10 @@ fun main() = runBlocking(Dispatchers.IO) {
     dispatcher.apply {
         install(Logging())
 
-        // Stateless handlers
         install(
-            EventHandling { TelegramSendingContext(bot, it.sourceChat()?.id!!) }
+            FsmFeature(
+                MemoryStateStore(MyStateValues.FIRST)
+            ) { TelegramSendingContext(bot, it.sourceChat()!!.id) }
         ) {
             onText("hi", ignoreCase = true) {
                 sendMessage("Oh, hello")
@@ -77,14 +77,7 @@ fun main() = runBlocking(Dispatchers.IO) {
             onText("name") {
                 sendMessage("Your name: ${getChat(chatId).asPrivateChat()?.firstName}")
             }
-        }
 
-        // FSM handlers
-        install(
-            FsmFeature(
-                MemoryStateStore(MyStateValues.FIRST)
-            ) { TelegramSendingContext(bot, it.sourceChat()?.id!!) }
-        ) {
             register(First, MyStateValues.FIRST)
             register(Second, MyStateValues.SECOND)
         }

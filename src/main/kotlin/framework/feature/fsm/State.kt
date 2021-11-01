@@ -1,10 +1,8 @@
 package framework.feature.fsm
 
 import arrow.core.None
-import framework.Registrar
+import framework.framework.feature.fsm.FsmConfiguration
 import framework.framework.feature.fsm.StateRegistrar
-import framework.framework.feature.fsm.StateTokenMap
-import framework.framework.stateStore.StateStore
 import framework.framework.handlers.Handler
 import framework.framework.handlers.StateHandlersBuilder
 import io.ktor.util.*
@@ -18,17 +16,14 @@ class State<TEvent : Any, TEventContext>(
 ) {
     fun <TToken : Any> register(
         token: TToken,
-        stateKey: AttributeKey<TToken>,
-        registrar: Registrar<TEvent, TEventContext>,
-        stateTokenMap: StateTokenMap<TToken>,
-        stateStore: StateStore<TEventContext, TToken>,
+        config: FsmConfiguration<TEvent, TEventContext, TToken>,
     ) {
-        stateTokenMap.saveToken(this, token)
-        StateHandlersBuilder(this, stateStore, stateTokenMap)
+        config.stateTokenMap.saveToken(this, token)
+        StateHandlersBuilder(this, config.stateStore, config.stateTokenMap)
             .apply(handlersBlock)
             .build()
-            .map { it.mapWithState(token, stateKey) }
-            .forEach { registrar.register(it) }
+            .map { it.mapWithState(token, config.stateKey) }
+            .forEach { config.registrar.register(it) }
     }
 }
 

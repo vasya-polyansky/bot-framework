@@ -1,6 +1,7 @@
 package framework
 
 import arrow.core.Option
+import framework.framework.SelectorContext
 
 /**
  * Iterable is used here because we can get multiple selector results from one incoming event

@@ -1,6 +1,7 @@
 package framework.feature
 
 import framework.*
+import framework.framework.SelectorContext
 import framework.framework.handlers.HandlersBuilder
 import framework.framework.handlers.selectAndTrigger
 

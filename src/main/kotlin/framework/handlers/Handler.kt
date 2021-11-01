@@ -2,8 +2,8 @@ package framework.framework.handlers
 
 import arrow.core.Option
 import framework.Selector
-import framework.SelectorContext
 import framework.Trigger
+import framework.framework.SelectorContext
 
 data class Handler<TEvent : Any, TEventContext, R>(
     val selector: Selector<TEvent, R>,
