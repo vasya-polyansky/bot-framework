@@ -1,6 +1,8 @@
 package framework.feature
 
 import framework.*
+import framework.framework.handlers.HandlersBuilder
+import framework.framework.handlers.selectAndTrigger
 
 
 class EventHandling<TEvent : Any, TEventContext>(
@@ -22,11 +24,7 @@ class EventHandling<TEvent : Any, TEventContext>(
 
             for (handler in handlers) {
                 // TODO: parallelize this flow iterations via markers
-                val result = handler.selectAndTrigger(
-                    event = event,
-                    selectorContext = selectorContext,
-                    eventContext = eventContext
-                )
+                val result = handler.selectAndTrigger(event, selectorContext, eventContext)
                 if (result.isNotEmpty()) {
                     finish()
                     break

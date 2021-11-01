@@ -1,17 +1,9 @@
-package framework
+package framework.framework.handlers
 
 import arrow.core.Option
-
-class HandlersBuilder<TEvent : Any, TEventContext> : Registrar<TEvent, TEventContext> {
-    private val handlers = mutableSetOf<Handler<TEvent, TEventContext, *>>()
-
-    override fun <R> register(handler: Handler<TEvent, TEventContext, R>) {
-        handlers.add(handler)
-    }
-
-    fun build(): Iterable<Handler<TEvent, TEventContext, *>> = handlers
-}
-
+import framework.Selector
+import framework.SelectorContext
+import framework.Trigger
 
 data class Handler<TEvent : Any, TEventContext, R>(
     val selector: Selector<TEvent, R>,

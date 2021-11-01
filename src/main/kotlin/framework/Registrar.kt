@@ -1,7 +1,8 @@
 package framework
 
+import framework.framework.handlers.Handler
 
-// TODO: Maybe make this context customizable
+
 data class SelectorContext<TEvent : Any>(
     val pipeline: EventPipeline<TEvent>,
 )

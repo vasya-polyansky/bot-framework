@@ -9,33 +9,41 @@ import dev.inmo.tgbotapi.extensions.api.chat.get.getChat
 import dev.inmo.tgbotapi.extensions.utils.asPrivateChat
 import dev.inmo.tgbotapi.extensions.utils.extensions.sourceChat
 import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
+import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import framework.dispatcher.BaseDispatcher
 import framework.feature.EventHandling
 import framework.feature.Logging
+import framework.feature.fsm.State
 import framework.framework.feature.fsm.FsmFeature
+import framework.framework.stateStore.MemoryStateStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
-val logger = KotlinLogging.logger { }
+private val logger = KotlinLogging.logger { }
 
-enum class MyStateValues { IDLE, MAIN_MENU }
+enum class MyStateValues { FIRST, SECOND }
 
-class MemoryStateStore<C> : StateStore<C, MyStateValues> {
-    override suspend fun getState(context: C): MyStateValues {
-        return MyStateValues.MAIN_MENU
+val fsm = TelegramFsm()
+
+// Required to annotate some states where the type checker can't do the type inference
+typealias TelegramState = State<Update, TelegramSendingContext>
+
+// TODO: Implement setState method
+// TODO: Implement lifecycle methods
+val First: TelegramState = fsm.state {
+    onText("first") {
+        sendMessage("First State")
+        setState(Second)
     }
 }
 
 
-val fsm = TelegramFsm()
-
-// TODO: Implement setState method
-// TODO: Implement lifecycle methods
-val MainMenu = fsm.state {
-    onText("menu") {
-        sendMessage("The main menu answer")
+val Second = fsm.state {
+    onText("second") {
+        sendMessage("Second State")
+        setState(First)
     }
 }
 
@@ -44,13 +52,11 @@ val MainMenu = fsm.state {
 fun main() = runBlocking(Dispatchers.IO) {
     val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
-    val dispatcher = BaseDispatcher(
-        scope = this,
-        eventFlow = bot.longPollingFlow(),
-    )
+    val dispatcher = BaseDispatcher(this, bot.longPollingFlow())
 
     // TODO: Remove duplication of event context creation blocks
     // TODO: Add fallback handlers section
+
     // The order in which EventHandling and FsmFeature are registered is important
     // because they are using the same pipeline phase.
     dispatcher.apply {
@@ -71,9 +77,12 @@ fun main() = runBlocking(Dispatchers.IO) {
 
         // FSM handlers
         install(
-            FsmFeature(MemoryStateStore()) { TelegramSendingContext(bot, it.sourceChat()?.id!!) }
+            FsmFeature(
+                MemoryStateStore(MyStateValues.FIRST)
+            ) { TelegramSendingContext(bot, it.sourceChat()?.id!!) }
         ) {
-            register(MainMenu, MyStateValues.MAIN_MENU)
+            register(First, MyStateValues.FIRST)
+            register(Second, MyStateValues.SECOND)
         }
     }
 
