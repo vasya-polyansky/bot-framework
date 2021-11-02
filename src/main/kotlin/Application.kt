@@ -1,7 +1,6 @@
 package framework
 
 import adapters.telegram.TelegramFsm
-import adapters.telegram.TelegramEventContext
 import adapters.telegram.TelegramStateEventContext
 import adapters.telegram.sendMessage
 import adapters.telegram.trigger.onText
@@ -75,6 +74,7 @@ fun main() = runBlocking(Dispatchers.IO) {
         ) {
             onText("hi", ignoreCase = true) {
                 sendMessage("Oh, hello")
+                setState(Second)
             }
 
             onText("name") {
