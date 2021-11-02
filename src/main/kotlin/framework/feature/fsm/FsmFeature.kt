@@ -14,8 +14,8 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
     private val createEventContext: suspend StateContext<TEventContext>.(TEvent) -> TEventContext,
 ) : DispatcherFeature<TEvent, FsmRegistrar<TToken, TEvent, TEventContext>> {
 
-    private val stateKey = AttributeKey<State<*, TEventContext>>("FSMStateKey")
     private val tokenKey = AttributeKey<TToken>("FSMTokenKey")
+    private val stateKey = AttributeKey<State<*, TEventContext>>("FSMStateKey")
 
     private val stateTokenMap = StateTokenMap<TToken, TEventContext>()
 
@@ -37,11 +37,8 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
         }
 
         EventHandling<TEvent, TEventContext> {
-            DefaultStateContext(
-                pipeline.attributes[stateKey],
-                stateStore,
-                stateTokenMap
-            ).createEventContext(it)
+            val state = pipeline.attributes[stateKey]
+            DefaultStateContext(state, stateStore, stateTokenMap).createEventContext(it)
         }.install(pipeline) {
             FsmRegistrar(
                 FsmConfiguration(
@@ -70,8 +67,9 @@ private class DefaultStateContext<TEvent : Any, TEventContext, TToken : Any>(
     }
 }
 
+// TODO: Remove this class
 /**
- * Helping class, must hot implement setstate
+ * Helping class, must hot implement setState method
  */
 private class DummyStateContextImpl<TEventContext> : StateContext<TEventContext> {
     override suspend fun TEventContext.setState(nextState: State<*, TEventContext>) {
