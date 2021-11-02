@@ -17,7 +17,6 @@ open class MemoryStateStore<TEventContext, TToken>(
 
     override suspend fun getState(context: TEventContext): TToken =
         mutex.withLock {
-            println("Memory state store: $list")
             list.firstOrNull { areContextsEqual(it.first, context) }?.second ?: initialState
         }
 
