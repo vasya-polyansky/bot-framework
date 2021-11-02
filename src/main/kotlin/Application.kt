@@ -11,16 +11,14 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.sourceChat
 import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
-import framework.dispatcher.BaseDispatcher
+import framework.dispatcher.baseDispatcher
 import framework.feature.Logging
 import framework.feature.fsm.State
 import framework.framework.feature.fsm.FsmFeature
+import framework.framework.feature.fsm.FsmRegistrar
 import framework.framework.stateStore.MemoryStateStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
-
-private val logger = KotlinLogging.logger { }
 
 enum class MyStateValues { FIRST, SECOND }
 
@@ -49,19 +47,13 @@ val Second = fsm.state(
     }
 }
 
+typealias AppFsmRegistrar = FsmRegistrar<*, Update, TelegramStateEventContext>
 
 @OptIn(PreviewFeature::class)
 fun main() = runBlocking(Dispatchers.IO) {
     val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
-    val dispatcher = BaseDispatcher(this, bot.longPollingFlow())
-
-    // TODO: Remove duplication of event context creation blocks
-    // TODO: Add fallback handlers section
-
-    // The order in which EventHandling and FsmFeature are registered is important
-    // because they are using the same pipeline phase.
-    dispatcher.apply {
+    baseDispatcher(bot.longPollingFlow()) {
         install(Logging())
 
         install(
@@ -72,20 +64,22 @@ fun main() = runBlocking(Dispatchers.IO) {
                 TelegramStateEventContext(bot, it.sourceChat()!!.id, this)
             }
         ) {
-            onText("hi", ignoreCase = true) {
-                sendMessage("Oh, hello")
-                setState(Second)
-            }
-
-            onText("name") {
-                sendMessage("Your name: ${getChat(chatId).asPrivateChat()?.firstName}")
-            }
+            basicTextHandlers()
 
             register(First, MyStateValues.FIRST)
             register(Second, MyStateValues.SECOND)
         }
+    }.start(this)
+}
+
+@OptIn(PreviewFeature::class)
+fun AppFsmRegistrar.basicTextHandlers() {
+    onText("hi", ignoreCase = true) {
+        sendMessage("Oh, hello")
+        setState(Second)
     }
 
-    dispatcher.start()
-    logger.info { "Application started 🚀" }
+    onText("name") {
+        sendMessage("Your name: ${getChat(chatId).asPrivateChat()?.firstName}")
+    }
 }

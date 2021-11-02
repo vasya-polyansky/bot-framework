@@ -1,27 +1,29 @@
 package framework.dispatcher
 
-import framework.feature.DispatcherFeature
 import framework.EventPipeline
+import framework.feature.DispatcherFeature
 import io.ktor.util.pipeline.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger { }
 
 class BaseDispatcher<TEvent : Any>(
-    private val scope: CoroutineScope,
     private val eventFlow: Flow<TEvent>,
 ) : Dispatcher<TEvent> {
     private val pipeline = EventPipeline<TEvent>()
 
-    fun start() =
+    override fun start(scope: CoroutineScope) {
+        logger.info { "Starting dispatcher..." }
+
         eventFlow
             .onEach { pipeline.execute(it) }
-            .launchIn(scope)  // TODO: Check if flow is already started
-
-    fun stop() {
-        scope.cancel()
+            .onStart { logger.info { "Dispatcher started 🚀" } }
+            .launchIn(scope)
     }
 
     override fun <TConfiguration> install(
@@ -32,3 +34,8 @@ class BaseDispatcher<TEvent : Any>(
         feature.install(pipeline, configure)
     }
 }
+
+fun <TEvent : Any> baseDispatcher(
+    eventFlow: Flow<TEvent>,
+    block: Dispatcher<TEvent>.() -> Unit,
+): Dispatcher<TEvent> = BaseDispatcher(eventFlow).apply { block() }

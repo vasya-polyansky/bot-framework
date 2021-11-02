@@ -11,12 +11,12 @@ class EventPipeline<TEvent : Any> : Pipeline<Unit, TEvent>(
 ) {
     companion object {
         /**
-         * Phase for preparing call and it's attributes for processing
+         * Phase for preparing event and it's attributes for processing
          */
         val Setup = PipelinePhase("Setup")
 
         /**
-         * Phase for tracing calls, useful for logging, metrics, error handling and so on
+         * Phase for tracing events, useful for logging, metrics, error handling and so on
          */
         val Monitoring = PipelinePhase("Monitoring")
 
@@ -26,12 +26,12 @@ class EventPipeline<TEvent : Any> : Pipeline<Unit, TEvent>(
         val Features = PipelinePhase("Features")
 
         /**
-         * Phase for processing a call and sending a response
+         * Phase for processing an event and sending a response
          */
         val Event = PipelinePhase("Event")
 
         /**
-         * Phase for handling unprocessed calls
+         * Phase for handling unprocessed events
          */
         val Fallback = PipelinePhase("Fallback")
     }
