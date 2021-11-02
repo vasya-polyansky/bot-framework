@@ -68,10 +68,7 @@ fun main() = runBlocking(Dispatchers.IO) {
         install(
             // TODO: Make these type variables to be inferred
             FsmFeature<Update, MyStateValues, TelegramStateEventContext>(
-                MemoryStateStore(
-                    MyStateValues.FIRST,
-                    areContextsEqual = { one, another -> one.chatId == another.chatId }
-                )
+                MemoryStateStore(MyStateValues.FIRST) { one, another -> one.chatId == another.chatId }
             ) {
                 TelegramStateEventContext(bot, it.sourceChat()!!.id, this)
             }
