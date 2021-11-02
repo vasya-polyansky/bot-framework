@@ -1,8 +1,8 @@
 package framework.feature.fsm
 
 import arrow.core.None
+import framework.Registrar
 import framework.framework.feature.fsm.FsmConfiguration
-import framework.framework.feature.fsm.StateRegistrar
 import framework.framework.handlers.Handler
 import framework.framework.handlers.StateHandlersBuilder
 import io.ktor.util.*
@@ -12,17 +12,17 @@ typealias LifecycleHook<TEventContext> = suspend TEventContext.() -> Unit
 class State<TEvent : Any, TEventContext>(
     val init: LifecycleHook<TEventContext>? = null,
     val dispose: LifecycleHook<TEventContext>? = null,
-    private val handlersBlock: StateRegistrar<TEvent, TEventContext>.() -> Unit,
+    private val handlersBlock: Registrar<TEvent, TEventContext>.() -> Unit,
 ) {
     fun <TToken : Any> register(
         token: TToken,
         config: FsmConfiguration<TEvent, TEventContext, TToken>,
     ) {
-        config.stateTokenMap.saveToken(this, token)
-        StateHandlersBuilder(this, config.stateStore, config.stateTokenMap)
+        config.stateTokenMap.saveStateAndToken(this, token)
+        StateHandlersBuilder<TEvent, TEventContext>()
             .apply(handlersBlock)
             .build()
-            .map { it.mapWithState(token, config.stateKey) }
+            .map { it.mapWithState(token, config.tokenKey) }
             .forEach { config.registrar.register(it) }
     }
 }

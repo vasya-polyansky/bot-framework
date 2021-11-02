@@ -1,17 +1,16 @@
 package framework.framework.feature.fsm
 
+import framework.Registrar
 import framework.feature.fsm.LifecycleHook
 import framework.feature.fsm.State
+import framework.feature.fsm.StateContext
 
 // TODO: Maybe add interface for this class
-/**
- * This class is required to automatically bind types for state
- */
-open class BaseFsm<TEvent : Any, TEventContext> {
+open class BaseFsm<TEvent : Any, TEventContext : StateContext<TEventContext>> {
     fun state(
         init: LifecycleHook<TEventContext>? = null,
         dispose: LifecycleHook<TEventContext>? = null,
-        handlersBlock: StateRegistrar<TEvent, TEventContext>.() -> Unit,
+        handlersBlock: Registrar<TEvent, TEventContext>.() -> Unit,
     ): State<TEvent, TEventContext> =
         State(
             init = init,

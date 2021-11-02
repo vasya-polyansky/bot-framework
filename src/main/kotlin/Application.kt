@@ -1,7 +1,8 @@
 package framework
 
 import adapters.telegram.TelegramFsm
-import adapters.telegram.TelegramSendingContext
+import adapters.telegram.TelegramEventContext
+import adapters.telegram.TelegramStateEventContext
 import adapters.telegram.sendMessage
 import adapters.telegram.trigger.onText
 import dev.inmo.tgbotapi.bot.Ktor.telegramBot
@@ -12,7 +13,6 @@ import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import framework.dispatcher.BaseDispatcher
-import framework.feature.EventHandling
 import framework.feature.Logging
 import framework.feature.fsm.State
 import framework.framework.feature.fsm.FsmFeature
@@ -28,7 +28,7 @@ enum class MyStateValues { FIRST, SECOND }
 val fsm = TelegramFsm()
 
 // Required to annotate some states where the type checker can't do the type inference
-typealias TelegramState = State<Update, TelegramSendingContext>
+typealias TelegramState = State<Update, TelegramStateEventContext>
 
 val First: TelegramState = fsm.state(
     init = { sendMessage("Initializing first state") },
@@ -66,9 +66,15 @@ fun main() = runBlocking(Dispatchers.IO) {
         install(Logging())
 
         install(
-            FsmFeature(
-                MemoryStateStore(MyStateValues.FIRST)
-            ) { TelegramSendingContext(bot, it.sourceChat()!!.id) }
+            // TODO: Make these type variables to be inferred
+            FsmFeature<Update, MyStateValues, TelegramStateEventContext>(
+                MemoryStateStore(
+                    MyStateValues.FIRST,
+                    areContextsEqual = { one, another -> one.chatId == another.chatId }
+                )
+            ) {
+                TelegramStateEventContext(bot, it.sourceChat()!!.id, this)
+            }
         ) {
             onText("hi", ignoreCase = true) {
                 sendMessage("Oh, hello")
