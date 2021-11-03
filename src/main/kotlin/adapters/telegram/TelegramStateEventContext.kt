@@ -10,13 +10,13 @@ fun TelegramStateEventContext(
     bot: TelegramBot,
     chatId: ChatId,
     stateContext: StateContext<TelegramStateEventContext>,
-): TelegramStateEventContext = TelegramStateEventContextImpl(bot, chatId, stateContext)
+): TelegramStateEventContext = TelegramStateEventContextImpl(chatId, bot, stateContext)
 
 
 private class TelegramStateEventContextImpl(
-    private val bot: TelegramBot,
-    override val chatId: ChatId,
-    private val stateContext: StateContext<TelegramStateEventContext>,
+    chatId: ChatId,
+    bot: TelegramBot,
+    stateContext: StateContext<TelegramStateEventContext>,
 ) : TelegramStateEventContext,
-    StateContext<TelegramStateEventContext> by stateContext,
-    TelegramBot by bot
+    TelegramEventContext by TelegramEventContext(bot, chatId),
+    StateContext<TelegramStateEventContext> by stateContext

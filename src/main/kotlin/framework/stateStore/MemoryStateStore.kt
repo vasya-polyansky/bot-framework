@@ -5,24 +5,24 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * TEventContext object must implement structural equality
+ * TContext object must implement structural equality
  */
-open class MemoryStateStore<TEventContext, TToken>(
+open class MemoryStateStore<TContext, TToken>(
     private val initialState: TToken,
-    private val areContextsEqual: (TEventContext, TEventContext) -> Boolean,
-) : StateStore<TEventContext, TToken> {
+    private val compareContexts: (TContext, TContext) -> Boolean,
+) : StateStore<TContext, TToken> {
     // TODO: Improve storing context
-    private val list = mutableListOf<Pair<TEventContext, TToken>>()
+    private val list = mutableListOf<Pair<TContext, TToken>>()
     private val mutex = Mutex()
 
-    override suspend fun getState(context: TEventContext): TToken =
+    override suspend fun getState(context: TContext): TToken =
         mutex.withLock {
-            list.firstOrNull { areContextsEqual(it.first, context) }?.second ?: initialState
+            list.firstOrNull { compareContexts(it.first, context) }?.second ?: initialState
         }
 
-    override suspend fun setState(context: TEventContext, token: TToken) {
+    override suspend fun setState(context: TContext, token: TToken) {
         mutex.withLock {
-            val index = list.indexOfFirstOrNull { areContextsEqual(it.first, context) }
+            val index = list.indexOfFirstOrNull { compareContexts(it.first, context) }
             if (index != null) {
                 list.removeAt(index)
             }

@@ -53,16 +53,16 @@ typealias AppFsmRegistrar = FsmRegistrar<*, Update, TelegramStateEventContext>
 fun main() = runBlocking(Dispatchers.IO) {
     val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
+    val stateStore = MemoryStateStore<TelegramStateEventContext, MyStateValues>(
+        MyStateValues.FIRST,
+        compareContexts = { one, another -> one.chatId == another.chatId }
+    )
+
     baseDispatcher(bot.longPollingFlow()) {
         install(Logging())
 
         install(
-            // TODO: Make these type variables to be inferred
-            FsmFeature<Update, MyStateValues, TelegramStateEventContext>(
-                MemoryStateStore(MyStateValues.FIRST) { one, another -> one.chatId == another.chatId }
-            ) {
-                TelegramStateEventContext(bot, it.sourceChat()!!.id, this)
-            }
+            FsmFeature(stateStore) { TelegramStateEventContext(bot, it.sourceChat()!!.id, this) }
         ) {
             basicTextHandlers()
 
