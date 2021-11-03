@@ -1,9 +1,11 @@
 package framework
 
+import adapters.telegram.TelegramEventContext
 import adapters.telegram.TelegramFsm
 import adapters.telegram.TelegramStateContext
 import adapters.telegram.sendMessage
 import adapters.telegram.trigger.onText
+import adapters.telegram.trigger.onUpdate
 import dev.inmo.tgbotapi.bot.Ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.chat.get.getChat
 import dev.inmo.tgbotapi.extensions.utils.asPrivateChat
@@ -12,6 +14,7 @@ import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import framework.dispatcher.baseDispatcher
+import framework.feature.EventHandling
 import framework.feature.Logging
 import framework.feature.fsm.State
 import framework.framework.feature.fsm.FsmFeature
@@ -68,6 +71,14 @@ fun main() = runBlocking(Dispatchers.IO) {
 
             register(First, MyStateValues.FIRST)
             register(Second, MyStateValues.SECOND)
+        }
+
+        install(
+            EventHandling.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
+        ) {
+            onText {
+                sendMessage("Fallback text handling")
+            }
         }
     }.start(this)
 }
