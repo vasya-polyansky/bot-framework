@@ -1,7 +1,7 @@
 package framework
 
 import adapters.telegram.TelegramFsm
-import adapters.telegram.TelegramStateEventContext
+import adapters.telegram.TelegramStateContext
 import adapters.telegram.sendMessage
 import adapters.telegram.trigger.onText
 import dev.inmo.tgbotapi.bot.Ktor.telegramBot
@@ -25,7 +25,7 @@ enum class MyStateValues { FIRST, SECOND }
 val fsm = TelegramFsm()
 
 // Required to annotate some states where the type checker can't do the type inference
-typealias TelegramState = State<Update, TelegramStateEventContext>
+typealias TelegramState = State<Update, TelegramStateContext>
 
 val First: TelegramState = fsm.state(
     init = { sendMessage("Initializing first state") },
@@ -47,13 +47,13 @@ val Second = fsm.state(
     }
 }
 
-typealias AppFsmRegistrar = FsmRegistrar<*, Update, TelegramStateEventContext>
+typealias AppFsmRegistrar = FsmRegistrar<*, Update, TelegramStateContext>
 
 @OptIn(PreviewFeature::class)
 fun main() = runBlocking(Dispatchers.IO) {
     val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
-    val stateStore = MemoryStateStore<TelegramStateEventContext, MyStateValues>(
+    val stateStore = MemoryStateStore<TelegramStateContext, MyStateValues>(
         MyStateValues.FIRST,
         compareContexts = { one, another -> one.chatId == another.chatId }
     )
@@ -62,7 +62,7 @@ fun main() = runBlocking(Dispatchers.IO) {
         install(Logging())
 
         install(
-            FsmFeature(stateStore) { TelegramStateEventContext(bot, it.sourceChat()!!.id, this) }
+            FsmFeature(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
         ) {
             basicTextHandlers()
 
