@@ -1,0 +1,13 @@
+package io.github.vp.framework.handlers
+
+import io.github.vp.framework.Registrar
+
+class StateHandlersBuilder<TEvent : Any, TEventContext> : Registrar<TEvent, TEventContext> {
+    private val handlers = mutableSetOf<Handler<TEvent, TEventContext, *>>()
+
+    override fun <R> register(handler: Handler<TEvent, TEventContext, R>) {
+        handlers.add(handler)
+    }
+
+    fun build(): Iterable<Handler<TEvent, TEventContext, *>> = handlers
+}
