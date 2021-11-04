@@ -1,6 +1,6 @@
 
 rootProject.name = "library"
 
-include("library-framework")
+include("library-core")
 include("library-telegram")
 include("example")

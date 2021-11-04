@@ -9,10 +9,10 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
 import dev.inmo.tgbotapi.utils.PreviewFeature
-import io.github.vp.framework.Filter
-import io.github.vp.framework.Trigger
-import io.github.vp.framework.register
-import io.github.vp.framework.toListOption
+import io.github.vp.core.Filter
+import io.github.vp.core.Trigger
+import io.github.vp.core.register
+import io.github.vp.core.toListOption
 
 
 fun <C> TelegramRegistrar<C>.onText(

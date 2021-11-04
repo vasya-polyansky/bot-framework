@@ -1,5 +1,5 @@
 dependencies {
-    api(project(":library-framework"))
+    api(project(":library-core"))
 
     api("dev.inmo:tgbotapi:0.35.9")
 }
