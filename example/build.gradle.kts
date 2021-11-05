@@ -14,6 +14,7 @@ repositories {
 }
 
 dependencies {
+    // Add version for these dependencies in a real project.
     implementation("io.github.vasya-polyansky:library-core")
     implementation("io.github.vasya-polyansky:library-telegram")
 }
