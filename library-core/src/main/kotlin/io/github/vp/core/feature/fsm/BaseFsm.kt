@@ -1,17 +1,33 @@
 package io.github.vp.core.feature.fsm
 
-import io.github.vp.core.Registrar
+import io.github.vp.core.handlers.HandlersBuilder
 
-// TODO: Maybe add interface for this class
+
 open class BaseFsm<TEvent : Any, TEventContext : StateContext<TEventContext>> {
     fun state(
-        init: LifecycleHook<TEventContext>? = null,
-        dispose: LifecycleHook<TEventContext>? = null,
-        handlersBlock: Registrar<TEvent, TEventContext>.() -> Unit,
+        block: StateRegistrar<TEvent, TEventContext>.() -> Unit,
     ): State<TEvent, TEventContext> =
-        State(
-            init = init,
-            dispose = dispose,
-            handlersBlock = handlersBlock
-        )
+        StateRegistrar<TEvent, TEventContext>()
+            .apply(block)
+            .buildState()
+}
+
+
+class StateRegistrar<TEvent : Any, TEventContext> : HandlersBuilder<TEvent, TEventContext>() {
+    private var initBlock: LifecycleHook<TEventContext>? = null
+    private var disposeBlock: LifecycleHook<TEventContext>? = null
+
+    fun buildState() = State(
+        init = initBlock,
+        dispose = disposeBlock,
+        handlers = build()
+    )
+
+    fun init(block: LifecycleHook<TEventContext>? = null) {
+        initBlock = block
+    }
+
+    fun dispose(block: LifecycleHook<TEventContext>? = null) {
+        disposeBlock = block
+    }
 }
