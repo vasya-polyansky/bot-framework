@@ -7,6 +7,7 @@ fun <T> singleWritable(init: (() -> T)) = SingleWritable(init)
 fun <T> singleWritable(default: T) = SingleWritable { default }
 
 
+// TODO: Replace map with Result/Optional
 class SingleWritable<T>(private val init: (() -> T)? = null) {
     private object Key
 
