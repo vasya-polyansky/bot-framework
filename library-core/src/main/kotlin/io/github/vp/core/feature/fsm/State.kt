@@ -11,16 +11,14 @@ typealias LifecycleHook<TEventContext> = suspend TEventContext.() -> Unit
 class State<TEvent : Any, TEventContext>(
     val init: LifecycleHook<TEventContext>? = null,
     val dispose: LifecycleHook<TEventContext>? = null,
-    private val handlersBlock: Registrar<TEvent, TEventContext>.() -> Unit,
+    private val handlers: Iterable<Handler<TEvent, TEventContext, *>>,
 ) {
     fun <TToken : Any> register(
         token: TToken,
         config: FsmConfiguration<TEvent, TEventContext, TToken>,
     ) {
         config.stateTokenMap.saveStateAndToken(this, token)
-        StateHandlersBuilder<TEvent, TEventContext>()
-            .apply(handlersBlock)
-            .build()
+        handlers
             .map { it.mapWithState(token, config.tokenKey) }
             .forEach { config.registrar.register(it) }
     }
