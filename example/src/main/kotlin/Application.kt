@@ -77,7 +77,7 @@ fun main() = runBlocking(Dispatchers.IO) {
 
 fun TgAppRegistrar.basicTextHandlers() {
     onText("hi", ignoreCase = true) {
-        sendMessage("Oh, hello")
+        sendMessage("Oh, hello. I move you to the second state ")
         setState(Second)
     }
 
