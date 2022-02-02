@@ -33,9 +33,11 @@ class BaseDispatcher<TEvent : Any>(
         // TODO: Check if a feature is already installed
         feature.install(pipeline, configure)
     }
-}
 
-fun <TEvent : Any> baseDispatcher(
-    eventFlow: Flow<TEvent>,
-    block: Dispatcher<TEvent>.() -> Unit,
-): Dispatcher<TEvent> = BaseDispatcher(eventFlow).apply { block() }
+    companion object {
+        operator fun <TEvent : Any> invoke(
+            eventFlow: Flow<TEvent>,
+            block: BaseDispatcher<TEvent>.() -> Unit,
+        ) = BaseDispatcher(eventFlow).apply { block() }
+    }
+}

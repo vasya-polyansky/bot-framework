@@ -6,14 +6,13 @@ import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Registrar
-import io.github.vp.core.dispatcher.baseDispatcher
+import io.github.vp.core.dispatcher.BaseDispatcher
 import io.github.vp.core.feature.EventHandling
 import io.github.vp.core.feature.Logging
 import io.github.vp.core.feature.fsm.FsmFeature
 import io.github.vp.core.feature.fsm.State
 import io.github.vp.core.stateStore.MemoryStateStore
 import io.github.vp.telegram.TelegramEventContext
-import io.github.vp.telegram.TelegramFsm
 import io.github.vp.telegram.TelegramStateContext
 import io.github.vp.telegram.sendMessage
 import io.github.vp.telegram.trigger.onText
@@ -22,32 +21,28 @@ import kotlinx.coroutines.runBlocking
 
 enum class MyStateValues { FIRST, SECOND }
 
-val fsm = TelegramFsm()
+typealias TgState = State<Update, TelegramStateContext>  // Required to create states
+typealias TgAppRegistrar = Registrar<Update, TelegramStateContext>
 
-// Required to annotate some states where the type inference can't infer a state's type
-typealias TelegramState = State<Update, TelegramStateContext>
-
-val First: TelegramState = fsm.state {
-    init { sendMessage("Initializing first state") }
-    dispose { sendMessage("Disposing first state") }
+val First = TgState {
+    init { sendMessage("Initializing first state 1️⃣") }
+    dispose { sendMessage("Disposing first state 1️⃣") }
 
     onText("to second") {
-        sendMessage("You're in first state")
+        sendMessage("You're in first state 1️⃣")
         setState(Second)
     }
 }
 
-val Second = fsm.state {
-    init { sendMessage("Initializing second state") }
-    dispose { sendMessage("Disposing second state") }
+val Second: TgState = TgState {
+    init { sendMessage("Initializing second state 2️⃣") }
+    dispose { sendMessage("Disposing second state 2️⃣") }
 
     onText("to first") {
-        sendMessage("This message from second state")
+        sendMessage("This message from second state 2️⃣")
         setState(First)
     }
 }
-
-typealias AppRegistrar = Registrar<Update, TelegramStateContext>
 
 @OptIn(PreviewFeature::class)
 fun main() = runBlocking(Dispatchers.IO) {
@@ -58,7 +53,7 @@ fun main() = runBlocking(Dispatchers.IO) {
         compareContexts = { one, another -> one.chatId == another.chatId }
     )
 
-    baseDispatcher(bot.longPollingFlow()) {
+    BaseDispatcher(bot.longPollingFlow()) {
         install(Logging())
 
         install(
@@ -74,20 +69,20 @@ fun main() = runBlocking(Dispatchers.IO) {
             EventHandling.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
         ) {
             onText {
-                sendMessage("Fallback text handling")
+                sendMessage("Fallback text handling (unknown)")
             }
         }
     }.start(this)
 }
 
-@OptIn(PreviewFeature::class)
-fun AppRegistrar.basicTextHandlers() {
+fun TgAppRegistrar.basicTextHandlers() {
     onText("hi", ignoreCase = true) {
         sendMessage("Oh, hello")
         setState(Second)
     }
 
     onText("name") {
+        @OptIn(PreviewFeature::class)
         sendMessage("Your name: ${getChat(chatId).asPrivateChat()?.firstName}")
     }
 }

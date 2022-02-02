@@ -8,11 +8,21 @@ import io.ktor.util.*
 
 typealias LifecycleHook<TEventContext> = suspend TEventContext.() -> Unit
 
-class State<TEvent : Any, TEventContext>(
+open class State<TEvent : Any, TEventContext>(
     val init: LifecycleHook<TEventContext>? = null,
     val dispose: LifecycleHook<TEventContext>? = null,
-    private val handlers: Iterable<Handler<TEvent, TEventContext, *>>,
+    val handlers: Iterable<Handler<TEvent, TEventContext, *>>,
 ) {
+    constructor(
+        block: StateBuilder<TEvent, TEventContext>.() -> Unit,
+    ) : this(
+        StateBuilder<TEvent, TEventContext>()
+            .apply(block)
+            .buildState()
+    )
+
+    constructor(state: State<TEvent, TEventContext>) : this(state.init, state.dispose, state.handlers)
+
     fun <TToken : Any> register(
         token: TToken,
         config: FsmConfiguration<TEvent, TEventContext, TToken>,
