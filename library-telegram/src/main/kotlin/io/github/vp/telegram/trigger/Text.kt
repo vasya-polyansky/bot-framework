@@ -12,7 +12,7 @@ import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.Trigger
 import io.github.vp.core.register
-import io.github.vp.core.toListOption
+import io.github.vp.core.toListOfOption
 
 
 fun <C> TelegramRegistrar<C>.onText(
@@ -72,6 +72,6 @@ internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onConte
                 } else {
                     null
                 }
-            }.toListOption()
+            }.toListOfOption()
     }
 }

@@ -1,3 +1,5 @@
+@file:OptIn(PreviewFeature::class)
+
 import dev.inmo.tgbotapi.bot.Ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.chat.get.getChat
 import dev.inmo.tgbotapi.extensions.utils.asPrivateChat
@@ -22,7 +24,7 @@ import kotlinx.coroutines.runBlocking
 enum class MyStateValues { FIRST, SECOND }
 
 typealias TgState = State<Update, TelegramStateContext>  // Required to create states
-typealias TgAppRegistrar = Registrar<Update, TelegramStateContext>
+typealias TgRegistrar = Registrar<Update, TelegramStateContext>
 
 val First = TgState {
     init { sendMessage("Initializing first state 1️⃣") }
@@ -44,45 +46,45 @@ val Second: TgState = TgState {
     }
 }
 
-@OptIn(PreviewFeature::class)
-fun main() = runBlocking(Dispatchers.IO) {
-    val bot = telegramBot(System.getenv("BOT_TOKEN"))
+fun main() {
+    runBlocking(Dispatchers.IO) {
+        val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
-    val stateStore = MemoryStateStore<TelegramStateContext, MyStateValues>(
-        MyStateValues.FIRST,
-        compareContexts = { one, another -> one.chatId == another.chatId }
-    )
+        val stateStore = MemoryStateStore<TelegramStateContext, MyStateValues>(
+            MyStateValues.FIRST,
+            compareContexts = { one, another -> one.chatId == another.chatId }
+        )
 
-    BaseDispatcher(bot.longPollingFlow()) {
-        install(Logging())
+        BaseDispatcher(bot.longPollingFlow()) {
+            install(Logging())
 
-        install(
-            FsmFeature(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
-        ) {
-            basicTextHandlers()
+            install(
+                FsmFeature(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
+            ) {
+                basicTextHandlers()
 
-            register(First, MyStateValues.FIRST)
-            register(Second, MyStateValues.SECOND)
-        }
-
-        install(
-            EventHandling.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
-        ) {
-            onText {
-                sendMessage("Fallback text handling (unknown)")
+                register(First, MyStateValues.FIRST)
+                register(Second, MyStateValues.SECOND)
             }
-        }
-    }.start(this)
+
+            install(
+                EventHandling.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
+            ) {
+                onText {
+                    sendMessage("Fallback text handling (unknown)")
+                }
+            }
+        }.start(this)
+    }
 }
 
-fun TgAppRegistrar.basicTextHandlers() {
+fun TgRegistrar.basicTextHandlers() {
     onText("hi", ignoreCase = true) {
         sendMessage("Oh, hello. I move you to the second state ")
         setState(Second)
     }
 
     onText("name") {
-        @OptIn(PreviewFeature::class)
         sendMessage("Your name: ${getChat(chatId).asPrivateChat()?.firstName}")
     }
 }
