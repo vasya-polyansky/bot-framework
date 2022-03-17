@@ -17,6 +17,7 @@ dependencies {
     // Add versions for these dependencies in a real project.
     implementation("io.github.vasya-polyansky:library-core")
     implementation("io.github.vasya-polyansky:library-telegram")
+    implementation(kotlin("stdlib"))
 }
 
 tasks.withType<KotlinCompile> {
