@@ -1,15 +1,15 @@
 package io.github.vp.telegram.trigger
 
-import arrow.core.left
-import arrow.core.right
-import arrow.core.toOption
+import arrow.core.*
 import io.github.vp.telegram.TelegramRegistrar
 import dev.inmo.tgbotapi.extensions.utils.asBaseSentMessageUpdate
 import dev.inmo.tgbotapi.extensions.utils.asCommonMessage
 import dev.inmo.tgbotapi.extensions.utils.asSentMediaGroupUpdate
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
+import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.Trigger
@@ -40,7 +40,7 @@ fun <C> TelegramRegistrar<C>.onText(
 
 
 @OptIn(PreviewFeature::class)
-internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onContent(
+inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onContent(
     includeMediaGroups: Boolean,
     noinline filter: Filter<CommonMessage<T>>,
     noinline trigger: Trigger<C, CommonMessage<T>>,
@@ -48,43 +48,48 @@ internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onConte
     registerHandler(
         Handler(
             trigger = trigger,
-            selector = { update ->
-                if (includeMediaGroups) {
-                    // TODO: Refactor
-                    update.asSentMediaGroupUpdate()
-                        ?.data
-                        ?.mapNotNull {
-                            if (it.content is T) {
-                                @Suppress("UNCHECKED_CAST")
-                                val adaptedMessage = it as CommonMessage<T>
-                                if (filter(adaptedMessage)) {
-                                    adaptedMessage
-                                } else {
-                                    null
-                                }
-                            } else {
-                                null
-                            }
-                        }?.let {
-                            return@Handler it.right()
-                        }
-                }
-
-                update.asBaseSentMessageUpdate()
-                    ?.data
-                    ?.asCommonMessage()
-                    ?.let {
-                        if (it.content is T) {
-                            @Suppress("UNCHECKED_CAST")
-                            val adaptedMessage = it as CommonMessage<T>
-                            if (filter(adaptedMessage)) adaptedMessage else null
-                        } else {
-                            null
-                        }
-                    }?.let { return@Handler listOf(it).right() }
-
-                return@Handler Unit.left()
-            }
+            selector = { selectUpdate(includeMediaGroups, it, filter) }
         )
     )
+}
+
+@OptIn(PreviewFeature::class)
+suspend inline fun <reified T : MessageContent> selectUpdate(
+    includeMediaGroups: Boolean,
+    update: Update,
+    noinline filter: Filter<CommonMessage<T>>,
+): Either<Unit, Iterable<CommonMessage<T>>> {
+    if (includeMediaGroups) {
+        val messageList = update
+            .asSentMediaGroupUpdate()
+            ?.data
+            ?.mapNotNull { it.toCommonMessage<T>().orNull() }
+            ?.filter { filter(it) }
+
+        if (messageList != null) {
+            return messageList.right()
+        }
+    }
+
+    val message = update.asBaseSentMessageUpdate()
+        ?.data
+        ?.asCommonMessage()
+        ?.toCommonMessage<T>()
+        ?.filter { filter(it) }
+        ?.orNull()
+
+    if (message != null) {
+        return listOf(message).right()
+    }
+
+    return Unit.left()
+}
+
+inline fun <reified T : MessageContent> ContentMessage<*>.toCommonMessage(): Option<CommonMessage<T>> {
+    return if (this.content is T) {
+        @Suppress("UNCHECKED_CAST")
+        Option(this as CommonMessage<T>)
+    } else {
+        None
+    }
 }
