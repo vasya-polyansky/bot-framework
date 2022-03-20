@@ -9,9 +9,9 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Registrar
 import io.github.vp.core.dispatcher.BaseDispatcher
-import io.github.vp.core.feature.RoutingFeature
+import io.github.vp.core.feature.Routing
 import io.github.vp.core.feature.Logging
-import io.github.vp.core.feature.fsm.FsmFeature
+import io.github.vp.core.feature.fsm.StateMachine
 import io.github.vp.core.feature.fsm.State
 import io.github.vp.core.stateStore.MemoryStateStore
 import io.github.vp.telegram.TelegramEventContext
@@ -59,7 +59,7 @@ fun main() {
             install(Logging())
 
             install(
-                FsmFeature(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
+                StateMachine(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
             ) {
                 basicTextHandlers()
 
@@ -68,7 +68,7 @@ fun main() {
             }
 
             install(
-                RoutingFeature.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
+                Routing.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
             ) {
                 onText {
                     sendMessage("Fallback text handling (unknown)")

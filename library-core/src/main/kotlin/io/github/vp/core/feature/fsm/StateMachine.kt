@@ -3,11 +3,11 @@ package io.github.vp.core.feature.fsm
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.stateStore.StateStore
 import io.github.vp.core.feature.DispatcherFeature
-import io.github.vp.core.feature.RoutingFeature
+import io.github.vp.core.feature.Routing
 import io.ktor.util.*
 
 
-class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEventContext>>(
+class StateMachine<TEvent : Any, TToken : Any, TEventContext : StateContext<TEventContext>>(
     private val stateStore: StateStore<TEventContext, TToken>,
     private val createEventContext: suspend StateContext<TEventContext>.(TEvent) -> TEventContext,
 ) : DispatcherFeature<TEvent, FsmRegistrar<TToken, TEvent, TEventContext>> {
@@ -34,7 +34,7 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             pipeline.attributes.put(stateKey, state)
         }
 
-        val routingFeatureFeature = RoutingFeature<TEvent, TEventContext>(
+        val routingFeature = Routing<TEvent, TEventContext>(
             createEventContext = {
                 val state = pipeline.attributes[stateKey]
                 val stateContext = FsmStateContext(state, stateStore, stateToTokenBinding)
@@ -42,7 +42,7 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             }
         )
 
-        routingFeatureFeature.install(pipeline) {
+        routingFeature.install(pipeline) {
             val fsmRegistrar = FsmRegistrar(
                 tokenKey = tokenKey,
                 stateTokenMap = stateToTokenBinding,

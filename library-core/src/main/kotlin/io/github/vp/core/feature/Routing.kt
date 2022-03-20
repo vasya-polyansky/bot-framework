@@ -6,7 +6,7 @@ import io.github.vp.core.handlers.HandlersBuilder
 import io.github.vp.core.handlers.triggerIfSelected
 import io.ktor.util.pipeline.*
 
-class RoutingFeature<TEvent : Any, TEventContext>(
+class Routing<TEvent : Any, TEventContext>(
     private val createEventContext: suspend (TEvent) -> TEventContext,
 ) : DispatcherFeature<TEvent, Registrar<TEvent, TEventContext>> {
     override fun install(
