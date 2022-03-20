@@ -2,7 +2,7 @@ package io.github.vp.telegram
 
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.types.ChatId
-import io.github.vp.core.feature.fsm.StateContext
+import io.github.vp.core.plugin.fsm.StateContext
 
 interface TelegramStateContext : StateContext<TelegramStateContext>, TelegramEventContext
 

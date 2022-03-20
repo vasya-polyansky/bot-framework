@@ -1,4 +1,4 @@
-package io.github.vp.core.feature
+package io.github.vp.core.plugin
 
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.Registrar
@@ -8,12 +8,12 @@ import io.ktor.util.pipeline.*
 
 class Routing<TEvent : Any, TEventContext>(
     private val createEventContext: suspend (TEvent) -> TEventContext,
-) : DispatcherFeature<TEvent, Registrar<TEvent, TEventContext>> {
+) : DispatcherPlugin<TEvent, Registrar<TEvent, TEventContext>> {
     override fun install(
         pipeline: EventPipeline<TEvent>,
         configure: Registrar<TEvent, TEventContext>.() -> Unit,
     ) {
-        installEventFeature(
+        installRouting(
             EventPipeline.Event,
             pipeline,
             createEventContext,
@@ -23,12 +23,12 @@ class Routing<TEvent : Any, TEventContext>(
 
     class Fallback<TEvent : Any, TEventContext>(
         private val createEventContext: suspend (TEvent) -> TEventContext,
-    ) : DispatcherFeature<TEvent, Registrar<TEvent, TEventContext>> {
+    ) : DispatcherPlugin<TEvent, Registrar<TEvent, TEventContext>> {
         override fun install(
             pipeline: EventPipeline<TEvent>,
             configure: Registrar<TEvent, TEventContext>.() -> Unit,
         ) {
-            installEventFeature(
+            installRouting(
                 EventPipeline.Fallback,
                 pipeline,
                 createEventContext,
@@ -38,7 +38,7 @@ class Routing<TEvent : Any, TEventContext>(
     }
 }
 
-private fun <TEvent : Any, TEventContext> installEventFeature(
+private fun <TEvent : Any, TEventContext> installRouting(
     pipelinePhase: PipelinePhase,
     pipeline: EventPipeline<TEvent>,
     createEventContext: suspend (TEvent) -> TEventContext,

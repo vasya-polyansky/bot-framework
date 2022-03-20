@@ -1,7 +1,7 @@
 package io.github.vp.core.dispatcher
 
 import io.github.vp.core.EventPipeline
-import io.github.vp.core.feature.DispatcherFeature
+import io.github.vp.core.plugin.DispatcherPlugin
 import io.ktor.util.pipeline.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -27,11 +27,11 @@ class BaseDispatcher<TEvent : Any>(
     }
 
     override fun <TConfiguration> install(
-        feature: DispatcherFeature<TEvent, TConfiguration>,
+        plugin: DispatcherPlugin<TEvent, TConfiguration>,
         configure: TConfiguration.() -> Unit,
     ) {
-        // TODO: Check if a feature is already installed
-        feature.install(pipeline, configure)
+        // TODO: Check if a plugin is already installed
+        plugin.install(pipeline, configure)
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package io.github.vp.core.feature.fsm
+package io.github.vp.core.plugin.fsm
 
 import java.util.*
 

@@ -9,10 +9,10 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Registrar
 import io.github.vp.core.dispatcher.BaseDispatcher
-import io.github.vp.core.feature.Routing
-import io.github.vp.core.feature.Logging
-import io.github.vp.core.feature.fsm.StateMachine
-import io.github.vp.core.feature.fsm.State
+import io.github.vp.core.plugin.Routing
+import io.github.vp.core.plugin.Logging
+import io.github.vp.core.plugin.fsm.StateMachine
+import io.github.vp.core.plugin.fsm.State
 import io.github.vp.core.stateStore.MemoryStateStore
 import io.github.vp.telegram.TelegramEventContext
 import io.github.vp.telegram.TelegramStateContext

@@ -1,4 +1,4 @@
-package io.github.vp.core.feature.fsm
+package io.github.vp.core.plugin.fsm
 
 import io.github.vp.core.LifecycleHook
 import io.github.vp.core.handlers.HandlersBuilder
