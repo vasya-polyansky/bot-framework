@@ -15,7 +15,7 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
     private val tokenKey = AttributeKey<TToken>("FSMTokenKey")
     private val stateKey = AttributeKey<State<*, TEventContext>>("FSMStateKey")
 
-    private val stateTokenMap = StateTokenMap<TToken, TEventContext>()
+    private val stateToTokenBinding = StateToTokenBinding<TToken, TEventContext>()
 
     // TODO: Remove dummy state context
     private val dummyStateContext = DummyStateContextImpl<TEventContext>()
@@ -28,43 +28,46 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             val event = context
             val eventContext = createEventContext(dummyStateContext, event)
             val token = stateStore.getState(eventContext)
-            val state = stateTokenMap.getState(token)
+            val state = stateToTokenBinding.getState(token)
 
             pipeline.attributes.put(tokenKey, token)
             pipeline.attributes.put(stateKey, state)
         }
 
-        EventHandling<TEvent, TEventContext> {
-            val state = pipeline.attributes[stateKey]
-            DefaultStateContext(state, stateStore, stateTokenMap).createEventContext(it)
-        }.install(pipeline) {
-            val config = FsmConfiguration(
+        val eventHandlingFeature = EventHandling<TEvent, TEventContext>(
+            createEventContext = {
+                val state = pipeline.attributes[stateKey]
+                val stateContext = FsmStateContext(state, stateStore, stateToTokenBinding)
+                stateContext.createEventContext(it)
+            }
+        )
+
+        eventHandlingFeature.install(pipeline) {
+            val fsmRegistrar = FsmRegistrar(
                 tokenKey = tokenKey,
-                stateTokenMap = stateTokenMap,
-                stateStore = stateStore,
-                registrar = this,
+                stateTokenMap = stateToTokenBinding,
+                parentRegistrar = this,
                 pipeline = pipeline
             )
+            fsmRegistrar.configure()
+        }
+    }
 
-            FsmRegistrar(config).configure()
+    private class FsmStateContext<TEvent : Any, TEventContext, TToken : Any>(
+        private val currentState: State<TEvent, TEventContext>,
+        private val stateStore: StateStore<TEventContext, TToken>,
+        private val stateTokenBinding: StateToTokenBinding<TToken, TEventContext>,
+    ) : StateContext<TEventContext> {
+        override suspend fun TEventContext.setState(nextState: State<*, TEventContext>) {
+            currentState.dispose?.invoke(this)
+            nextState.init?.invoke(this)
+
+            val token = stateTokenBinding.getToken(nextState)
+            stateStore.setState(this, token)
         }
     }
 }
 
-
-private class DefaultStateContext<TEvent : Any, TEventContext, TToken : Any>(
-    private val currentState: State<TEvent, TEventContext>,
-    private val stateStore: StateStore<TEventContext, TToken>,
-    private val stateTokenMap: StateTokenMap<TToken, TEventContext>,
-) : StateContext<TEventContext> {
-    override suspend fun TEventContext.setState(nextState: State<*, TEventContext>) {
-        currentState.dispose?.invoke(this)
-        nextState.init?.invoke(this)
-
-        val token = stateTokenMap.getToken(nextState)
-        stateStore.setState(this, token)
-    }
-}
 
 // TODO: Remove this class
 /**
