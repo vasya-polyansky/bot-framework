@@ -4,24 +4,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka") version "1.5.30"
-}
-
-
-val dokkaOutputDir = "$buildDir/dokka"
-
-tasks.dokkaHtml {
-    outputDirectory.set(file(dokkaOutputDir))
-}
-
-val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
-    delete(dokkaOutputDir)
-}
-
-val javadocJar = tasks.register<Jar>("javadocJar") {
-    dependsOn(deleteDokkaOutputDir, tasks.dokkaHtml)
-    archiveClassifier.set("javadoc")
-    from(dokkaOutputDir)
+    id("org.jetbrains.dokka") version "1.6.10"
 }
 
 allprojects {
@@ -41,18 +24,36 @@ allprojects {
 }
 
 subprojects {
+    val project = this
+
     apply {
         plugin("org.jetbrains.kotlin.jvm")
         plugin("maven-publish")
-        plugin("signing")
+        plugin("org.jetbrains.dokka")
+    }
+
+    java {
+        withSourcesJar()
+    }
+
+    tasks.dokkaHtml.configure {
+        outputDirectory.set(buildDir.resolve("dokka"))
+    }
+
+    val javadocJar by tasks.registering(Jar::class) {
+        dependsOn(tasks.dokkaHtml)
+        archiveClassifier.set("javadoc")
+        from(tasks.dokkaHtml.get().outputDirectory)
     }
 
     publishing {
         publications {
             create<MavenPublication>("maven") {
+                from(components["java"])
                 artifact(javadocJar)
+
                 pom {
-                    name.set("bot-framework")
+                    name.set(project.name)
                     url.set("https://github.com/vasya-polyansky/bot-framework")
                     developers {
                         developer {
