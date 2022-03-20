@@ -38,14 +38,15 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             val state = pipeline.attributes[stateKey]
             DefaultStateContext(state, stateStore, stateTokenMap).createEventContext(it)
         }.install(pipeline) {
-            FsmRegistrar(
-                FsmConfiguration(
-                    tokenKey = tokenKey,
-                    stateTokenMap = stateTokenMap,
-                    stateStore = stateStore,
-                    registrar = this
-                )
-            ).configure()
+            val config = FsmConfiguration(
+                tokenKey = tokenKey,
+                stateTokenMap = stateTokenMap,
+                stateStore = stateStore,
+                registrar = this,
+                pipeline = pipeline
+            )
+
+            FsmRegistrar(config).configure()
         }
     }
 }

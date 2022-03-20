@@ -11,8 +11,8 @@ import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.Trigger
-import io.github.vp.core.register
-import io.github.vp.core.toListOfOption
+import io.github.vp.core.handlers.Handler
+import io.github.vp.core.toListInOption
 
 
 fun <C> TelegramRegistrar<C>.onText(
@@ -44,34 +44,39 @@ internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onConte
     noinline filter: Filter<CommonMessage<T>>,
     noinline trigger: Trigger<C, CommonMessage<T>>,
 ) {
-    register(trigger) { update ->
-        if (includeMediaGroups) {
-            update.asSentMediaGroupUpdate()
-                ?.data
-                ?.mapNotNull {
-                    if (it.content is T) {
-                        @Suppress("UNCHECKED_CAST")
-                        val adaptedMessage = it as CommonMessage<T>
-                        if (filter(adaptedMessage)) adaptedMessage else null
-                    } else {
-                        null
-                    }
-                }?.let {
-                    return@register it.toOption()
+    registerHandler(
+        Handler(
+            trigger = trigger,
+            selector = { update ->
+                if (includeMediaGroups) {
+                    update.asSentMediaGroupUpdate()
+                        ?.data
+                        ?.mapNotNull {
+                            if (it.content is T) {
+                                @Suppress("UNCHECKED_CAST")
+                                val adaptedMessage = it as CommonMessage<T>
+                                if (filter(adaptedMessage)) adaptedMessage else null
+                            } else {
+                                null
+                            }
+                        }?.let {
+                            return@Handler it.toOption()
+                        }
                 }
-        }
 
-        update.asBaseSentMessageUpdate()
-            ?.data
-            ?.asCommonMessage()
-            ?.let {
-                if (it.content is T) {
-                    @Suppress("UNCHECKED_CAST")
-                    val adaptedMessage = it as CommonMessage<T>
-                    if (filter(adaptedMessage)) adaptedMessage else null
-                } else {
-                    null
-                }
-            }.toListOfOption()
-    }
+                update.asBaseSentMessageUpdate()
+                    ?.data
+                    ?.asCommonMessage()
+                    ?.let {
+                        if (it.content is T) {
+                            @Suppress("UNCHECKED_CAST")
+                            val adaptedMessage = it as CommonMessage<T>
+                            if (filter(adaptedMessage)) adaptedMessage else null
+                        } else {
+                            null
+                        }
+                    }.toListInOption()
+            }
+        )
+    )
 }

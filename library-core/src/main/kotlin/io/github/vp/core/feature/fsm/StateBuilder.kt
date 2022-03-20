@@ -1,5 +1,6 @@
 package io.github.vp.core.feature.fsm
 
+import io.github.vp.core.LifecycleHook
 import io.github.vp.core.handlers.HandlersBuilder
 import io.github.vp.core.microutils.singleWritable
 
