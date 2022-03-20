@@ -5,12 +5,12 @@ import io.github.vp.core.handlers.HandlersBuilder
 import io.github.vp.core.handlers.triggerIfSelected
 
 fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.prefetch(
-    fetcher: Prefetch<TEventContext, TFetched>,
+    fetcher: Prefetch<TEventContext, TEvent, TFetched>,
     registrationBlock: Registrar<TEvent, TEventContext>.(TFetched) -> Unit,
 ) {
     registerHandler(
         HandlerWithoutFilter {
-            val fetchedData = fetcher()
+            val fetchedData = fetcher(it)
 
             val handlers = HandlersBuilder<TEvent, TEventContext>()
                 .apply { registrationBlock(fetchedData) }

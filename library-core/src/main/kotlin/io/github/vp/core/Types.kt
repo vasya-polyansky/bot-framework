@@ -9,5 +9,5 @@ typealias Selector<TEvent, TSelected> = suspend (TEvent) -> Option<Iterable<TSel
 typealias Filter <TEvent> = suspend (TEvent) -> Boolean
 
 typealias Trigger<TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Unit
-typealias Prefetch<TEventContext, R> = suspend TEventContext.() -> R
+typealias Prefetch<TEventContext, TEvent, TFetched> = suspend TEventContext.(TEvent) -> TFetched
 typealias LifecycleHook<TEventContext> = suspend TEventContext.() -> Unit
