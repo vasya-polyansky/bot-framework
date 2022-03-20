@@ -20,7 +20,7 @@ fun <TEvent : Any, TEventContext> HandlerWithoutFilter(
     )
 }
 
-suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.selectAndTrigger(
+suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.triggerIfSelected(
     event: TEvent,
     eventContext: TEventContext,
 ): Option<Unit> {

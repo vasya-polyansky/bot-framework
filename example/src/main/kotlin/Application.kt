@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Registrar
 import io.github.vp.core.dispatcher.BaseDispatcher
-import io.github.vp.core.feature.EventHandling
+import io.github.vp.core.feature.RoutingFeature
 import io.github.vp.core.feature.Logging
 import io.github.vp.core.feature.fsm.FsmFeature
 import io.github.vp.core.feature.fsm.State
@@ -68,7 +68,7 @@ fun main() {
             }
 
             install(
-                EventHandling.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
+                RoutingFeature.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
             ) {
                 onText {
                     sendMessage("Fallback text handling (unknown)")

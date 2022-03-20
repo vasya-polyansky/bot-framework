@@ -3,10 +3,10 @@ package io.github.vp.core.feature
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.Registrar
 import io.github.vp.core.handlers.HandlersBuilder
-import io.github.vp.core.handlers.selectAndTrigger
+import io.github.vp.core.handlers.triggerIfSelected
 import io.ktor.util.pipeline.*
 
-class EventHandling<TEvent : Any, TEventContext>(
+class RoutingFeature<TEvent : Any, TEventContext>(
     private val createEventContext: suspend (TEvent) -> TEventContext,
 ) : DispatcherFeature<TEvent, Registrar<TEvent, TEventContext>> {
     override fun install(
@@ -54,7 +54,7 @@ private fun <TEvent : Any, TEventContext> installEventFeature(
 
         for (handler in handlers) {
             // TODO: parallelize this flow iterations via markers
-            val result = handler.selectAndTrigger(event, eventContext)
+            val result = handler.triggerIfSelected(event, eventContext)
             if (result.isNotEmpty()) {
                 finish()
                 break

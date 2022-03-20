@@ -3,7 +3,7 @@ package io.github.vp.core.feature.fsm
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.stateStore.StateStore
 import io.github.vp.core.feature.DispatcherFeature
-import io.github.vp.core.feature.EventHandling
+import io.github.vp.core.feature.RoutingFeature
 import io.ktor.util.*
 
 
@@ -34,7 +34,7 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             pipeline.attributes.put(stateKey, state)
         }
 
-        val eventHandlingFeature = EventHandling<TEvent, TEventContext>(
+        val routingFeatureFeature = RoutingFeature<TEvent, TEventContext>(
             createEventContext = {
                 val state = pipeline.attributes[stateKey]
                 val stateContext = FsmStateContext(state, stateStore, stateToTokenBinding)
@@ -42,7 +42,7 @@ class FsmFeature<TEvent : Any, TToken : Any, TEventContext : StateContext<TEvent
             }
         )
 
-        eventHandlingFeature.install(pipeline) {
+        routingFeatureFeature.install(pipeline) {
             val fsmRegistrar = FsmRegistrar(
                 tokenKey = tokenKey,
                 stateTokenMap = stateToTokenBinding,

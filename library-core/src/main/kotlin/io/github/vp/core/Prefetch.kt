@@ -2,7 +2,7 @@ package io.github.vp.core
 
 import io.github.vp.core.handlers.HandlerWithoutFilter
 import io.github.vp.core.handlers.HandlersBuilder
-import io.github.vp.core.handlers.selectAndTrigger
+import io.github.vp.core.handlers.triggerIfSelected
 
 fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.prefetch(
     fetcher: Prefetch<TEventContext, TFetched>,
@@ -17,7 +17,7 @@ fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.pre
                 .build()
 
             for (handler in handlers) {
-                val result = handler.selectAndTrigger(it, this)
+                val result = handler.triggerIfSelected(it, this)
                 if (result.isNotEmpty()) {
                     break
                 }
