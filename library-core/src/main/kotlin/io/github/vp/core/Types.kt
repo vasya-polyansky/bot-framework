@@ -1,11 +1,11 @@
 package io.github.vp.core
 
-import arrow.core.Option
+import arrow.core.Either
 
 /**
  * Iterable is used here because we can get multiple selector results from one incoming event
 */
-typealias Selector<TEvent, TSelected> = suspend (TEvent) -> Option<Iterable<TSelected>>
+typealias Selector<TEvent, TSelected> = suspend (TEvent) -> Either<Unit, Iterable<TSelected>>
 typealias Filter <TEvent> = suspend (TEvent) -> Boolean
 
 typealias Trigger<TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Unit

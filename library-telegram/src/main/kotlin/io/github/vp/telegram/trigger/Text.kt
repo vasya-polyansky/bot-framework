@@ -1,5 +1,7 @@
 package io.github.vp.telegram.trigger
 
+import arrow.core.left
+import arrow.core.right
 import arrow.core.toOption
 import io.github.vp.telegram.TelegramRegistrar
 import dev.inmo.tgbotapi.extensions.utils.asBaseSentMessageUpdate
@@ -12,7 +14,6 @@ import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.Trigger
 import io.github.vp.core.handlers.Handler
-import io.github.vp.core.toListInOption
 
 
 fun <C> TelegramRegistrar<C>.onText(
@@ -49,18 +50,23 @@ internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onConte
             trigger = trigger,
             selector = { update ->
                 if (includeMediaGroups) {
+                    // TODO: Refactor
                     update.asSentMediaGroupUpdate()
                         ?.data
                         ?.mapNotNull {
                             if (it.content is T) {
                                 @Suppress("UNCHECKED_CAST")
                                 val adaptedMessage = it as CommonMessage<T>
-                                if (filter(adaptedMessage)) adaptedMessage else null
+                                if (filter(adaptedMessage)) {
+                                    adaptedMessage
+                                } else {
+                                    null
+                                }
                             } else {
                                 null
                             }
                         }?.let {
-                            return@Handler it.toOption()
+                            return@Handler it.right()
                         }
                 }
 
@@ -75,7 +81,9 @@ internal inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onConte
                         } else {
                             null
                         }
-                    }.toListInOption()
+                    }?.let { return@Handler listOf(it).right() }
+
+                return@Handler Unit.left()
             }
         )
     )

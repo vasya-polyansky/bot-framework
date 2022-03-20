@@ -17,11 +17,15 @@ fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.pre
                 .build()
 
             for (handler in handlers) {
+
                 val result = handler.triggerIfSelected(it, this)
                 if (result.isNotEmpty()) {
                     break
                 }
             }
+
+            // TODO: Return something to indicate that no one handler is selected. Required to check other handlers
+            //  – May be replace Option with own sealed class
         }
     )
 }

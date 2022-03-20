@@ -1,6 +1,6 @@
 package io.github.vp.core.plugin.fsm
 
-import arrow.core.None
+import arrow.core.left
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.Registrar
 import io.github.vp.core.handlers.Handler
@@ -15,16 +15,22 @@ class FsmRegistrar<TToken : Any, TEvent : Any, TEventContext>(
     fun register(state: State<TEvent, TEventContext>, token: TToken) {
         stateTokenMap.bindStateToToken(state, token)
         state.handlers
-            .map { it.addStateFilter(token, tokenKey) }
+            .map { it.addStateFilter(tokenKey, token) }
             .forEach { registerHandler(it) }
     }
 
     private fun <R> Handler<TEvent, TEventContext, R>.addStateFilter(
+        tokenKey: AttributeKey<TToken>,
         token: TToken,
-        stateKey: AttributeKey<TToken>,
     ): Handler<TEvent, TEventContext, R> {
         return copy(
-            selector = { if (pipeline.attributes[stateKey] != token) None else selector(it) }
+            selector = {
+                if (pipeline.attributes[tokenKey] != token) {
+                    Unit.left()
+                } else {
+                    selector(it)
+                }
+            }
         )
     }
 }
