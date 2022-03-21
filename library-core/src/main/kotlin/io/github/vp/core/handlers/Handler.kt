@@ -1,18 +1,33 @@
 package io.github.vp.core.handlers
 
-import arrow.core.Either
 import arrow.core.right
+import io.github.vp.core.ResultingTrigger
 import io.github.vp.core.Selector
-import io.github.vp.core.Trigger
+import io.github.vp.core.SimpleTrigger
 
 data class Handler<TEvent : Any, TEventContext, TSelected>(
     val selector: Selector<TEvent, TSelected>,
-    val trigger: Trigger<TEventContext, TSelected>,
-)
+    val trigger: ResultingTrigger<TEventContext, TSelected>,
+) {
+    companion object {
+        operator fun <TEvent : Any, TEventContext, TSelected> invoke(
+            selector: Selector<TEvent, TSelected>,
+            trigger: SimpleTrigger<TEventContext, TSelected>,
+        ): Handler<TEvent, TEventContext, TSelected> {
+            return Handler(
+                selector = selector,
+                trigger = {
+                    trigger(it)
+                    PipelineAction.Finish
+                }
+            )
+        }
+    }
+}
 
 @Suppress("FunctionName")
 fun <TEvent : Any, TEventContext> HandlerWithoutFilter(
-    trigger: Trigger<TEventContext, TEvent>,
+    trigger: ResultingTrigger<TEventContext, TEvent>,
 ): Handler<TEvent, TEventContext, TEvent> {
     return Handler(
         selector = { listOf(it).right() },
@@ -23,8 +38,11 @@ fun <TEvent : Any, TEventContext> HandlerWithoutFilter(
 suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.triggerIfSelected(
     event: TEvent,
     eventContext: TEventContext,
-): Either<Unit, Unit> {
-    return selector(event).map { selectedResults ->
-        selectedResults.forEach { trigger(eventContext, it) }
-    }
+): PipelineAction {
+    return selector(event)
+        .map { selectedResults -> selectedResults.forEach { trigger(eventContext, it) } }
+        .fold(
+            { PipelineAction.Continue },
+            { PipelineAction.Finish }
+        )
 }

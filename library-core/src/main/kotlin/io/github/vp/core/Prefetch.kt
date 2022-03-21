@@ -1,8 +1,6 @@
 package io.github.vp.core
 
-import io.github.vp.core.handlers.HandlerWithoutFilter
-import io.github.vp.core.handlers.HandlersBuilder
-import io.github.vp.core.handlers.triggerIfSelected
+import io.github.vp.core.handlers.*
 
 fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.prefetch(
     fetcher: Prefetch<TEventContext, TEvent, TFetched>,
@@ -17,15 +15,13 @@ fun <TEvent : Any, TEventContext, TFetched> Registrar<TEvent, TEventContext>.pre
                 .build()
 
             for (handler in handlers) {
-
                 val result = handler.triggerIfSelected(it, this)
-                if (result.isNotEmpty()) {
-                    break
+                if (result.isFinish()) {
+                    return@HandlerWithoutFilter PipelineAction.Finish
                 }
             }
 
-            // TODO: Return something to indicate that no one handler is selected. Required to check other handlers
-            //  – May be replace Option with own sealed class
+            return@HandlerWithoutFilter PipelineAction.Continue
         }
     )
 }

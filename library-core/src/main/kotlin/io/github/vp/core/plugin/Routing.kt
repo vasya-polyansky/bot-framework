@@ -3,6 +3,7 @@ package io.github.vp.core.plugin
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.Registrar
 import io.github.vp.core.handlers.HandlersBuilder
+import io.github.vp.core.handlers.isFinish
 import io.github.vp.core.handlers.triggerIfSelected
 import io.ktor.util.pipeline.*
 
@@ -55,7 +56,7 @@ private fun <TEvent : Any, TEventContext> installRouting(
         for (handler in handlers) {
             // TODO: parallelize this flow iterations via markers
             val result = handler.triggerIfSelected(event, eventContext)
-            if (result.isNotEmpty()) {
+            if (result.isFinish()) {
                 finish()
                 break
             }

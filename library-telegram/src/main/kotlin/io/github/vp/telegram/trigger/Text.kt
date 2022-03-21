@@ -12,20 +12,20 @@ import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
-import io.github.vp.core.Trigger
+import io.github.vp.core.SimpleTrigger
 import io.github.vp.core.handlers.Handler
 
 
 fun <C> TelegramRegistrar<C>.onText(
     text: String,
     ignoreCase: Boolean = false,
-    trigger: Trigger<C, CommonMessage<TextContent>>,
+    trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onText({ text.equals(it.content.text, ignoreCase = ignoreCase) }, trigger)
 }
 
 fun <C> TelegramRegistrar<C>.onText(
-    trigger: Trigger<C, CommonMessage<TextContent>>,
+    trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onText(filter = { true }, trigger)
 }
@@ -33,7 +33,7 @@ fun <C> TelegramRegistrar<C>.onText(
 
 fun <C> TelegramRegistrar<C>.onText(
     filter: Filter<CommonMessage<TextContent>>,
-    trigger: Trigger<C, CommonMessage<TextContent>>,
+    trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onContent(includeMediaGroups = true, filter = filter, trigger = trigger)
 }
@@ -43,7 +43,7 @@ fun <C> TelegramRegistrar<C>.onText(
 inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onContent(
     includeMediaGroups: Boolean,
     noinline filter: Filter<CommonMessage<T>>,
-    noinline trigger: Trigger<C, CommonMessage<T>>,
+    noinline trigger: SimpleTrigger<C, CommonMessage<T>>,
 ) {
     registerHandler(
         Handler(
