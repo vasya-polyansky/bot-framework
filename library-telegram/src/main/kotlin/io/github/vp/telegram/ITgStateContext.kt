@@ -4,15 +4,16 @@ import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.types.ChatId
 import io.github.vp.core.plugin.fsm.StateContext
 
-interface TgStateContext<T: TgStateContext<T>> : StateContext<T>, TgEventContext
+// TODO: Remove recursive generic
+interface ITgStateContext<T: ITgStateContext<T>> : StateContext<T>, TgEventContext
 
 @Suppress("FunctionName")
-fun <T: TgStateContext<T>> TgStateContext(
+fun <T: ITgStateContext<T>> TgStateContext(
     bot: TelegramBot,
     chatId: ChatId,
     stateContext: StateContext<T>,
-): TgStateContext<T> {
-    return object : TgStateContext<T>,
+): ITgStateContext<T> {
+    return object : ITgStateContext<T>,
         TgEventContext by TgEventContext(bot, chatId),
         StateContext<T> by stateContext {}
 }

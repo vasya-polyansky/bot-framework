@@ -4,10 +4,13 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import io.github.vp.core.SimpleTrigger
 import io.github.vp.core.handlers.PipelineAction
 import io.github.vp.core.handlers.HandlerWithoutFilter
-import io.github.vp.telegram.TelegramRegistrar
+import io.github.vp.telegram.TgUpdateRegistrar
 
-fun <C> TelegramRegistrar<C>.onUpdate(trigger: SimpleTrigger<C, Update>) {
+fun <C> TgUpdateRegistrar<C>.onUpdate(trigger: SimpleTrigger<C, Update>) {
     registerHandler(
-        HandlerWithoutFilter { PipelineAction.Finish }
+        HandlerWithoutFilter {
+            trigger(it)
+            PipelineAction.Finish
+        }
     )
 }

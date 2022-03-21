@@ -1,7 +1,7 @@
 package io.github.vp.telegram.trigger
 
 import arrow.core.*
-import io.github.vp.telegram.TelegramRegistrar
+import io.github.vp.telegram.TgUpdateRegistrar
 import dev.inmo.tgbotapi.extensions.utils.asBaseSentMessageUpdate
 import dev.inmo.tgbotapi.extensions.utils.asCommonMessage
 import dev.inmo.tgbotapi.extensions.utils.asSentMediaGroupUpdate
@@ -16,7 +16,7 @@ import io.github.vp.core.SimpleTrigger
 import io.github.vp.core.handlers.Handler
 
 
-fun <C> TelegramRegistrar<C>.onText(
+fun <C> TgUpdateRegistrar<C>.onText(
     text: String,
     ignoreCase: Boolean = false,
     trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
@@ -24,14 +24,14 @@ fun <C> TelegramRegistrar<C>.onText(
     onText({ text.equals(it.content.text, ignoreCase = ignoreCase) }, trigger)
 }
 
-fun <C> TelegramRegistrar<C>.onText(
+fun <C> TgUpdateRegistrar<C>.onText(
     trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onText(filter = { true }, trigger)
 }
 
 
-fun <C> TelegramRegistrar<C>.onText(
+fun <C> TgUpdateRegistrar<C>.onText(
     filter: Filter<CommonMessage<TextContent>>,
     trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
@@ -40,7 +40,7 @@ fun <C> TelegramRegistrar<C>.onText(
 
 
 @OptIn(PreviewFeature::class)
-inline fun <reified T : MessageContent, C> TelegramRegistrar<C>.onContent(
+inline fun <reified T : MessageContent, C> TgUpdateRegistrar<C>.onContent(
     includeMediaGroups: Boolean,
     noinline filter: Filter<CommonMessage<T>>,
     noinline trigger: SimpleTrigger<C, CommonMessage<T>>,

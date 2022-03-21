@@ -16,6 +16,7 @@ import io.github.vp.core.plugin.fsm.State
 import io.github.vp.core.stateStore.MemoryStateStore
 import io.github.vp.telegram.TgEventContext
 import io.github.vp.telegram.TgStateContext
+import io.github.vp.telegram.ITgStateContext
 import io.github.vp.telegram.sendMessage
 import io.github.vp.telegram.trigger.onText
 import kotlinx.coroutines.Dispatchers
@@ -23,12 +24,14 @@ import kotlinx.coroutines.runBlocking
 
 enum class MyStateValues { FIRST, SECOND }
 
-typealias AppState = State<Update, AppContext>  // Required to create states
+
+// region
+// own types for app
+typealias AppState = State<Update, AppContext>
 typealias AppRegistrar = Registrar<Update, AppContext>
 
-class AppContext(
-    private val tgContext: TgStateContext<AppContext>,
-) : TgStateContext<AppContext> by tgContext
+class AppContext(tgContext: ITgStateContext<AppContext>) : ITgStateContext<AppContext> by tgContext
+// endregion
 
 
 val First = AppState {
