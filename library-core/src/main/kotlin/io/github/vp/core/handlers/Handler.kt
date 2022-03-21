@@ -39,10 +39,12 @@ suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.t
     event: TEvent,
     eventContext: TEventContext,
 ): PipelineAction {
-    return selector(event)
-        .map { selectedResults -> selectedResults.forEach { trigger(eventContext, it) } }
-        .fold(
-            { PipelineAction.Continue },
-            { PipelineAction.Finish }
-        )
+    return selector(event).fold(
+        { PipelineAction.Continue },
+        { selectedResults ->
+            // TODO: Improve this code
+            val actions = selectedResults.map { trigger(eventContext, it) }
+            return actions.first()
+        }
+    )
 }
