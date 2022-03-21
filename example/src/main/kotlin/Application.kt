@@ -14,8 +14,8 @@ import io.github.vp.core.plugin.Logging
 import io.github.vp.core.plugin.fsm.StateMachine
 import io.github.vp.core.plugin.fsm.State
 import io.github.vp.core.stateStore.MemoryStateStore
-import io.github.vp.telegram.TelegramEventContext
-import io.github.vp.telegram.TelegramStateContext
+import io.github.vp.telegram.TgEventContext
+import io.github.vp.telegram.TgStateContext
 import io.github.vp.telegram.sendMessage
 import io.github.vp.telegram.trigger.onText
 import kotlinx.coroutines.Dispatchers
@@ -23,10 +23,15 @@ import kotlinx.coroutines.runBlocking
 
 enum class MyStateValues { FIRST, SECOND }
 
-typealias TgState = State<Update, TelegramStateContext>  // Required to create states
-typealias TgRegistrar = Registrar<Update, TelegramStateContext>
+typealias AppState = State<Update, AppContext>  // Required to create states
+typealias AppRegistrar = Registrar<Update, AppContext>
 
-val First = TgState {
+class AppContext(
+    private val tgContext: TgStateContext<AppContext>,
+) : TgStateContext<AppContext> by tgContext
+
+
+val First = AppState {
     init { sendMessage("Initializing first state 1️⃣") }
     dispose { sendMessage("Disposing first state 1️⃣") }
 
@@ -36,7 +41,7 @@ val First = TgState {
     }
 }
 
-val Second: TgState = TgState {
+val Second: AppState = AppState {
     init { sendMessage("Initializing second state 2️⃣") }
     dispose { sendMessage("Disposing second state 2️⃣") }
 
@@ -50,7 +55,7 @@ fun main() {
     runBlocking(Dispatchers.IO) {
         val bot = telegramBot(System.getenv("BOT_TOKEN"))
 
-        val stateStore = MemoryStateStore<TelegramStateContext, MyStateValues>(
+        val stateStore = MemoryStateStore<AppContext, MyStateValues>(
             MyStateValues.FIRST,
             compareContexts = { one, another -> one.chatId == another.chatId }
         )
@@ -59,7 +64,10 @@ fun main() {
             install(Logging())
 
             install(
-                StateMachine(stateStore) { TelegramStateContext(bot, it.sourceChat()!!.id, this) }
+                StateMachine(stateStore) {
+                    val tgContext = TgStateContext(bot, it.sourceChat()!!.id, this)
+                    AppContext(tgContext)
+                }
             ) {
                 basicTextHandlers()
 
@@ -68,7 +76,7 @@ fun main() {
             }
 
             install(
-                Routing.Fallback { TelegramEventContext(bot, it.sourceChat()!!.id) }
+                Routing.Fallback { TgEventContext(bot, it.sourceChat()!!.id) }
             ) {
                 onText {
                     sendMessage("Fallback text handling (unknown)")
@@ -78,7 +86,7 @@ fun main() {
     }
 }
 
-fun TgRegistrar.basicTextHandlers() {
+fun AppRegistrar.basicTextHandlers() {
     onText("hi", ignoreCase = true) {
         sendMessage("Oh, hello. I move you to the second state ")
         setState(Second)
