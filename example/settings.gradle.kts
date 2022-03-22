@@ -6,7 +6,7 @@ rootProject.name = "example"
 includeBuild("../") {
     dependencySubstitution {
         val group = "io.github.vasya-polyansky"
-        substitute(module("$group:library-core")).using(project(":library-core"))
-        substitute(module("$group:library-telegram")).using(project(":library-telegram"))
+        substitute(module("$group:bot-framework-core")).using(project(":bot-framework-core"))
+        substitute(module("$group:bot-framework-telegram")).using(project(":bot-framework-telegram"))
     }
 }

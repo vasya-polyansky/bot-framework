@@ -15,8 +15,8 @@ repositories {
 
 dependencies {
     // Add versions for these dependencies in a real project.
-    implementation("io.github.vasya-polyansky:library-core")
-    implementation("io.github.vasya-polyansky:library-telegram")
+    implementation("io.github.vasya-polyansky:bot-framework-core")
+    implementation("io.github.vasya-polyansky:bot-framework-telegram")
     implementation(kotlin("stdlib"))
 }
 

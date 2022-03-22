@@ -1,5 +1,5 @@
 
-rootProject.name = "library"
+rootProject.name = "bot-framework"
 
-include("library-core")
-include("library-telegram")
+include("bot-framework-core")
+include("bot-framework-telegram")
