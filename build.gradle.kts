@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = "io.github.vasya-polyansky"
-    version = "0.1.0-dev"
+    version = "1.0.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -24,11 +24,12 @@ allprojects {
 }
 
 subprojects {
-    val project = this
+    val currentProject = this
 
     apply {
         plugin("org.jetbrains.kotlin.jvm")
         plugin("maven-publish")
+        plugin("signing")
         plugin("org.jetbrains.dokka")
     }
 
@@ -46,6 +47,14 @@ subprojects {
         from(tasks.dokkaHtml.get().outputDirectory)
     }
 
+    signing {
+        useInMemoryPgpKeys(
+            stringProperty("gpg.private.key") ?: return@signing,
+            stringProperty("gpg.private.password") ?: return@signing
+        )
+        sign(publishing.publications)
+    }
+
     publishing {
         publications {
             create<MavenPublication>("maven") {
@@ -53,7 +62,14 @@ subprojects {
                 artifact(javadocJar)
 
                 pom {
-                    name.set(project.name)
+                    name.set(currentProject.name)
+                    description.set(currentProject.name)
+                    licenses {
+                        license {
+                            name.set("MIT")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
                     url.set("https://github.com/vasya-polyansky/bot-framework")
                     developers {
                         developer {
@@ -76,12 +92,22 @@ subprojects {
             mavenLocal()
             maven {
                 name = "OSSRH"
-                setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+                setUrl(
+                    if (version.toString().endsWith("SNAPSHOT")) {
+                        "https://s01.oss.sonatype.org/content/repositories/snapshots"
+                    } else {
+                        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+                    }
+                )
                 credentials {
-                    username = System.getenv("SONATYPE_USERNAME")
-                    password = System.getenv("SONATYPE_PASSWORD")
+                    username = stringProperty("sonatype.username")
+                    password = stringProperty("sonatype.password")
                 }
             }
         }
     }
+}
+
+fun stringProperty(propertyName: String): String? {
+    return property(propertyName)?.toString()
 }
