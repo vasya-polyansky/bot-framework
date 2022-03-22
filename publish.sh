@@ -10,7 +10,7 @@ printf "\n"
 read -rsp "Sonatype password: " SONATYPE_PASSWORD
 
 ./gradlew publish \
-  -Pgpg.private.key="${GPG_PRIVATE_KEY}" \
-  -Pgpg.private.password="${GPG_PRIVATE_PASSWORD}" \
-  -Psonatype.username=${SONATYPE_USERNAME} \
-  -Psonatype.password=${SONATYPE_PASSWORD}
+  -Dgpg.private.key="${GPG_PRIVATE_KEY}" \
+  -Dgpg.private.password="${GPG_PRIVATE_PASSWORD}" \
+  -Dsonatype.username=${SONATYPE_USERNAME} \
+  -Dsonatype.password=${SONATYPE_PASSWORD}

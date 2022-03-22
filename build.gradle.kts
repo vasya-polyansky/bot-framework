@@ -17,7 +17,7 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
         }
     }
@@ -109,5 +109,5 @@ subprojects {
 }
 
 fun stringProperty(propertyName: String): String? {
-    return property(propertyName)?.toString()
+    return System.getProperty(propertyName)
 }
