@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = "io.github.vasya-polyansky"
-    version = "0.1.0"
+    version = "0.1.0-dev"
 
     repositories {
         mavenCentral()
