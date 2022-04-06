@@ -32,7 +32,7 @@ fun <C> TgUpdateRegistrar<C>.onText(
 
 
 fun <C> TgUpdateRegistrar<C>.onText(
-    filter: Filter<CommonMessage<TextContent>>,
+    filter: Filter<C, CommonMessage<TextContent>>,
     trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onContent(includeMediaGroups = true, filter = filter, trigger = trigger)
@@ -42,22 +42,22 @@ fun <C> TgUpdateRegistrar<C>.onText(
 @OptIn(PreviewFeature::class)
 inline fun <reified T : MessageContent, C> TgUpdateRegistrar<C>.onContent(
     includeMediaGroups: Boolean,
-    noinline filter: Filter<CommonMessage<T>>,
+    noinline filter: Filter<C, CommonMessage<T>>,
     noinline trigger: SimpleTrigger<C, CommonMessage<T>>,
 ) {
     registerHandler(
         Handler(
             trigger = trigger,
-            selector = { selectUpdate(includeMediaGroups, it, filter) }
+            selector = { selectCommonMessage(includeMediaGroups, it, filter) }
         )
     )
 }
 
 @OptIn(PreviewFeature::class)
-suspend inline fun <reified T : MessageContent> selectUpdate(
+suspend inline fun <reified T : MessageContent, C> C.selectCommonMessage(
     includeMediaGroups: Boolean,
     update: Update,
-    noinline filter: Filter<CommonMessage<T>>,
+    noinline filter: Filter<C, CommonMessage<T>>,
 ): Either<Unit, Iterable<CommonMessage<T>>> {
     if (includeMediaGroups) {
         val messageList = update

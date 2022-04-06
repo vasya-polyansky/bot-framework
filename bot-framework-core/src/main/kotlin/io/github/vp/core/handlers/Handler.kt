@@ -6,12 +6,12 @@ import io.github.vp.core.Selector
 import io.github.vp.core.SimpleTrigger
 
 data class Handler<TEvent : Any, TEventContext, TSelected>(
-    val selector: Selector<TEvent, TSelected>,
+    val selector: Selector<TEventContext, TEvent, TSelected>,
     val trigger: ResultingTrigger<TEventContext, TSelected>,
 ) {
     companion object {
         operator fun <TEvent : Any, TEventContext, TSelected> invoke(
-            selector: Selector<TEvent, TSelected>,
+            selector: Selector<TEventContext, TEvent, TSelected>,
             trigger: SimpleTrigger<TEventContext, TSelected>,
         ): Handler<TEvent, TEventContext, TSelected> {
             return Handler(
@@ -39,7 +39,7 @@ suspend fun <TEvent : Any, TEventContext, R> Handler<TEvent, TEventContext, R>.t
     event: TEvent,
     eventContext: TEventContext,
 ): PipelineAction {
-    return selector(event).fold(
+    return selector(eventContext, event).fold(
         { PipelineAction.Continue },
         { selectedResults ->
             // TODO: Improve this code

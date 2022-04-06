@@ -6,8 +6,8 @@ import io.github.vp.core.handlers.PipelineAction
 /**
  * Iterable is used here because we can get multiple selector results from one incoming event
 */
-typealias Selector<TEvent, TSelected> = suspend (TEvent) -> Either<Unit, Iterable<TSelected>>
-typealias Filter <TEvent> = suspend (TEvent) -> Boolean
+typealias Selector<TEventContext, TEvent, TSelected> = suspend TEventContext.(TEvent) -> Either<Unit, Iterable<TSelected>>
+typealias Filter <TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Boolean
 
 private typealias VerboseTrigger<TEventContext, TEvent, TResult> = suspend TEventContext.(TEvent) -> TResult
 typealias ResultingTrigger<TEventContext, TEvent> = VerboseTrigger<TEventContext, TEvent, PipelineAction>

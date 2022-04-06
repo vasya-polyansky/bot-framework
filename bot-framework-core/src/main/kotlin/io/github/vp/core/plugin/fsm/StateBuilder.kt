@@ -8,11 +8,13 @@ class StateBuilder<TEvent : Any, TEventContext> : HandlersBuilder<TEvent, TEvent
     private var initBlock: LifecycleHook<TEventContext>? by singleWritable(null)
     private var disposeBlock: LifecycleHook<TEventContext>? by singleWritable(null)
 
-    fun buildState() = State(
-        init = initBlock,
-        dispose = disposeBlock,
-        handlers = build()
-    )
+    fun buildState(): State<TEvent, TEventContext> {
+        return State(
+            init = initBlock,
+            dispose = disposeBlock,
+            handlers = build()
+        )
+    }
 
     fun init(block: LifecycleHook<TEventContext>) {
         initBlock = block
