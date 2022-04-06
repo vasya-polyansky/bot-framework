@@ -6,6 +6,7 @@ import io.github.vp.core.handlers.PipelineAction
 /**
  * Iterable is used here because we can get multiple selector results from one incoming event
 */
+// TODO: Maybe replace Either with Option
 typealias Selector<TEventContext, TEvent, TSelected> = suspend TEventContext.(TEvent) -> Either<Unit, Iterable<TSelected>>
 typealias Filter <TEventContext, TEvent> = suspend TEventContext.(TEvent) -> Boolean
 

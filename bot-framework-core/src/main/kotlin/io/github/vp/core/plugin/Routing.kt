@@ -7,8 +7,12 @@ import io.github.vp.core.handlers.isFinish
 import io.github.vp.core.handlers.triggerIfSelected
 import io.ktor.util.pipeline.*
 
+
+private typealias CreateEventContext<TEvent, TEventContext> = suspend (TEvent) -> TEventContext
+private typealias Configure<TEvent, TEventContext> = Registrar<TEvent, TEventContext>.() -> Unit
+
 class Routing<TEvent : Any, TEventContext>(
-    private val createEventContext: suspend (TEvent) -> TEventContext,
+    private val createEventContext: CreateEventContext<TEvent, TEventContext>,
 ) : DispatcherPlugin<TEvent, Registrar<TEvent, TEventContext>> {
     override fun install(
         pipeline: EventPipeline<TEvent>,
@@ -23,11 +27,11 @@ class Routing<TEvent : Any, TEventContext>(
     }
 
     class Fallback<TEvent : Any, TEventContext>(
-        private val createEventContext: suspend (TEvent) -> TEventContext,
+        private val createEventContext: CreateEventContext<TEvent, TEventContext>,
     ) : DispatcherPlugin<TEvent, Registrar<TEvent, TEventContext>> {
         override fun install(
             pipeline: EventPipeline<TEvent>,
-            configure: Registrar<TEvent, TEventContext>.() -> Unit,
+            configure: Configure<TEvent, TEventContext>,
         ) {
             installRouting(
                 EventPipeline.Fallback,
@@ -42,8 +46,8 @@ class Routing<TEvent : Any, TEventContext>(
 private fun <TEvent : Any, TEventContext> installRouting(
     pipelinePhase: PipelinePhase,
     pipeline: EventPipeline<TEvent>,
-    createEventContext: suspend (TEvent) -> TEventContext,
-    configure: Registrar<TEvent, TEventContext>.() -> Unit,
+    createEventContext: CreateEventContext<TEvent, TEventContext>,
+    configure: Configure<TEvent, TEventContext>,
 ) {
     val handlers = HandlersBuilder<TEvent, TEventContext>()
         .apply(configure)
