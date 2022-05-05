@@ -12,8 +12,11 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
+
 class BaseDispatcher<TEvent : Any>(
     private val eventFlow: Flow<TEvent>,
+    private val onException: suspend (Exception) -> Unit =
+        { logger.error("Error while processing event", it) },
 ) : Dispatcher<TEvent> {
     private val pipeline = EventPipeline<TEvent>()
 
@@ -21,7 +24,13 @@ class BaseDispatcher<TEvent : Any>(
         logger.info { "Starting dispatcher..." }
 
         eventFlow
-            .onEach { pipeline.execute(it) }
+            .onEach {
+                try {
+                    pipeline.execute(it)
+                } catch (e: Exception) {
+                    onException(e)
+                }
+            }
             .onStart { logger.info { "Dispatcher started 🚀" } }
             .launchIn(scope)
     }
@@ -37,7 +46,9 @@ class BaseDispatcher<TEvent : Any>(
     companion object {
         operator fun <TEvent : Any> invoke(
             eventFlow: Flow<TEvent>,
-            block: BaseDispatcher<TEvent>.() -> Unit,
-        ) = BaseDispatcher(eventFlow).apply { block() }
+            block: Dispatcher<TEvent>.() -> Unit,
+        ): Dispatcher<TEvent> {
+            return BaseDispatcher(eventFlow).apply { block() }
+        }
     }
 }
