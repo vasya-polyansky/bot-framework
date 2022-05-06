@@ -16,13 +16,8 @@ private val logger = KotlinLogging.logger { }
 class BaseDispatcher<TEvent : Any>(
     private val eventFlow: Flow<TEvent>,
     private val onException: suspend (Exception) -> Unit =
-        { logger.error("Error while processing event", it) },
-    private val configure: Dispatcher<TEvent>.() -> Unit = {}
+        { logger.error("Error while processing event", it) }
 ) : Dispatcher<TEvent> {
-    init {
-        configure()
-    }
-
     private val pipeline = EventPipeline<TEvent>()
 
     override fun start(scope: CoroutineScope) {
@@ -47,4 +42,14 @@ class BaseDispatcher<TEvent : Any>(
         // TODO: Check if a plugin is already installed
         plugin.install(pipeline, configure)
     }
+}
+
+@Suppress("FunctionName")
+fun <TEvent : Any> BaseDispatcher(
+    eventFlow: Flow<TEvent>,
+    onException: suspend (Exception) -> Unit =
+        { logger.error("Error while processing event", it) },
+    configure: Dispatcher<TEvent>.() -> Unit = {},
+): Dispatcher<TEvent> {
+    return BaseDispatcher(eventFlow, onException).apply { configure() }
 }
