@@ -1,6 +1,6 @@
 @file:OptIn(PreviewFeature::class)
 
-import dev.inmo.tgbotapi.bot.Ktor.telegramBot
+import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.chat.get.getChat
 import dev.inmo.tgbotapi.extensions.utils.asPrivateChat
 import dev.inmo.tgbotapi.extensions.utils.extensions.sourceChat

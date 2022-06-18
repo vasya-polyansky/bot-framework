@@ -1,3 +1,5 @@
+@file:OptIn(PreviewFeature::class)
+
 package io.github.vp.telegram.trigger
 
 import arrow.core.*
@@ -5,12 +7,11 @@ import io.github.vp.telegram.TgUpdateRegistrar
 import dev.inmo.tgbotapi.extensions.utils.asBaseSentMessageUpdate
 import dev.inmo.tgbotapi.extensions.utils.asCommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.abstracts.MessageContent
+import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.SimpleTrigger
 
-@OptIn(PreviewFeature::class)
 inline fun <C, reified T : MessageContent> TgUpdateRegistrar<C>.onContent(
     noinline filter: Filter<C, CommonMessage<T>>? = null,
     noinline trigger: SimpleTrigger<C, CommonMessage<T>>,

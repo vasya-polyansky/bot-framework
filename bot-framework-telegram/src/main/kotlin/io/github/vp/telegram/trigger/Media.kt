@@ -1,11 +1,14 @@
+@file:OptIn(PreviewFeature::class)
+
 package io.github.vp.telegram.trigger
 
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.abstracts.MediaContent
-import dev.inmo.tgbotapi.types.message.content.media.AudioContent
-import dev.inmo.tgbotapi.types.message.content.media.DocumentContent
-import dev.inmo.tgbotapi.types.message.content.media.PhotoContent
-import dev.inmo.tgbotapi.types.message.content.media.VideoContent
+import dev.inmo.tgbotapi.types.message.content.AudioContent
+import dev.inmo.tgbotapi.types.message.content.DocumentContent
+import dev.inmo.tgbotapi.types.message.content.MediaContent
+import dev.inmo.tgbotapi.types.message.content.PhotoContent
+import dev.inmo.tgbotapi.types.message.content.VideoContent
+import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Filter
 import io.github.vp.core.SimpleTrigger
 import io.github.vp.telegram.TgUpdateRegistrar
