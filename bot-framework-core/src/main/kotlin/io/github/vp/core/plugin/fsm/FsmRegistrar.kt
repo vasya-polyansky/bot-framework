@@ -1,6 +1,6 @@
 package io.github.vp.core.plugin.fsm
 
-import arrow.core.left
+import arrow.core.None
 import io.github.vp.core.EventPipeline
 import io.github.vp.core.Registrar
 import io.github.vp.core.handlers.Handler
@@ -24,13 +24,7 @@ class FsmRegistrar<TToken : Any, TEvent : Any, TEventContext>(
         token: TToken,
     ): Handler<TEvent, TEventContext, R> {
         return copy(
-            selector = {
-                if (pipeline.attributes[tokenKey] != token) {
-                    Unit.left()
-                } else {
-                    selector(it)
-                }
-            }
+            selector = { if (pipeline.attributes[tokenKey] == token) selector(it) else None }
         )
     }
 }

@@ -1,5 +1,6 @@
 package io.github.vp.core.handlers
 
+import arrow.core.Some
 import arrow.core.right
 import io.github.vp.core.ResultingTrigger
 import io.github.vp.core.Selector
@@ -30,7 +31,7 @@ fun <TEvent : Any, TEventContext> HandlerWithoutFilter(
     trigger: ResultingTrigger<TEventContext, TEvent>,
 ): Handler<TEvent, TEventContext, TEvent> {
     return Handler(
-        selector = { listOf(it).right() },
+        selector = { Some(listOf(it)) },
         trigger = trigger
     )
 }

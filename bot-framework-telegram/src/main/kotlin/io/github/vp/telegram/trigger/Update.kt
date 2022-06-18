@@ -22,7 +22,6 @@ fun <C, E> TgUpdateRegistrar<C>.onUpdate(
                 updateToData(update)
                     .filter { filter?.invoke(this, it) ?: true }
                     .map { listOf(it) }
-                    .fold({ Unit.left() }, { it.right() })
             }
         )
     )
