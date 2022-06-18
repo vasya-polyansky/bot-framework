@@ -63,7 +63,7 @@ fun main() {
             compareContexts = { one, another -> one.chatId == another.chatId }
         )
 
-        BaseDispatcher(bot.longPollingFlow()) {
+        BaseDispatcher(bot.longPollingFlow(), configure = {
             install(Logging())
 
             install(
@@ -85,7 +85,7 @@ fun main() {
                     sendMessage("Fallback text handling (unknown)")
                 }
             }
-        }.start(this)
+        }).start(this)
     }
 }
 
