@@ -15,15 +15,8 @@ fun <C> TgUpdateRegistrar<C>.onText(
 }
 
 fun <C> TgUpdateRegistrar<C>.onText(
-    trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
-) {
-    onText(filter = { true }, trigger)
-}
-
-fun <C> TgUpdateRegistrar<C>.onText(
-    filter: Filter<C, CommonMessage<TextContent>>,
+    filter: Filter<C, CommonMessage<TextContent>>? = null,
     trigger: SimpleTrigger<C, CommonMessage<TextContent>>,
 ) {
     onContent(filter, trigger)
 }
-

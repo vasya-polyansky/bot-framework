@@ -12,7 +12,7 @@ import io.github.vp.core.SimpleTrigger
 
 @OptIn(PreviewFeature::class)
 inline fun <C, reified T : MessageContent> TgUpdateRegistrar<C>.onContent(
-    noinline filter: Filter<C, CommonMessage<T>>,
+    noinline filter: Filter<C, CommonMessage<T>>? = null,
     noinline trigger: SimpleTrigger<C, CommonMessage<T>>,
 ) {
     onUpdate(trigger, filter) { update ->

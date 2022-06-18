@@ -11,50 +11,36 @@ import io.github.vp.core.SimpleTrigger
 import io.github.vp.telegram.TgUpdateRegistrar
 
 inline fun <C, reified E: MediaContent> TgUpdateRegistrar<C>.onMedia(
-    noinline filter: Filter<C, CommonMessage<E>> = { true },
+    noinline filter: Filter<C, CommonMessage<E>>? = null,
     noinline trigger: SimpleTrigger<C, CommonMessage<E>>,
 ) {
-    onContent(
-        filter = filter,
-        trigger = trigger
-    )
+    onContent(filter, trigger)
 }
 
 fun <C> TgUpdateRegistrar<C>.onDocument(
-    filter: Filter<C, CommonMessage<DocumentContent>> = { true },
+    filter: Filter<C, CommonMessage<DocumentContent>>? = null,
     trigger: SimpleTrigger<C, CommonMessage<DocumentContent>>,
 ) {
     onMedia(filter, trigger)
 }
 
 fun <C> TgUpdateRegistrar<C>.onPhoto(
-    filter: Filter<C, CommonMessage<PhotoContent>> = { true },
+    filter: Filter<C, CommonMessage<PhotoContent>>? = null,
     trigger: SimpleTrigger<C, CommonMessage<PhotoContent>>,
 ) {
-    onContent(
-        filter = filter,
-        trigger = trigger
-    )
+    onMedia(filter, trigger)
 }
 
 fun <C> TgUpdateRegistrar<C>.onVideo(
-    filter: Filter<C, CommonMessage<VideoContent>> = { true },
+    filter: Filter<C, CommonMessage<VideoContent>>? = null,
     trigger: SimpleTrigger<C, CommonMessage<VideoContent>>,
 ) {
-    onContent(
-        filter = filter,
-        trigger = trigger
-    )
+    onMedia(filter, trigger)
 }
 
 fun <C> TgUpdateRegistrar<C>.onAudio(
-    filter: Filter<C, CommonMessage<AudioContent>> = { true },
+    filter: Filter<C, CommonMessage<AudioContent>>? = null,
     trigger: SimpleTrigger<C, CommonMessage<AudioContent>>,
 ) {
-    onContent(
-        filter = filter,
-        trigger = trigger
-    )
+    onMedia(filter, trigger)
 }
-
-

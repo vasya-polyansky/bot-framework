@@ -10,7 +10,7 @@ import io.github.vp.telegram.TgUpdateRegistrar
 
 @OptIn(PreviewFeature::class)
 fun <C, E : CallbackQuery> TgUpdateRegistrar<C>.onCallbackQuery(
-    filter: Filter<C, E> = { true },
+    filter: Filter<C, E>? = null,
     trigger: SimpleTrigger<C, E>,
 ) {
     @Suppress("UNCHECKED_CAST")

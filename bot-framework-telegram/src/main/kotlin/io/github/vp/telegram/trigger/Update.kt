@@ -12,7 +12,7 @@ import io.github.vp.telegram.TgUpdateRegistrar
 
 fun <C, E> TgUpdateRegistrar<C>.onUpdate(
     trigger: SimpleTrigger<C, E>,
-    filter: Filter<C, E> = { true },
+    filter: Filter<C, E>? = null,
     updateToData: (Update) -> Option<E>,
 ) {
     registerHandler(
@@ -20,7 +20,7 @@ fun <C, E> TgUpdateRegistrar<C>.onUpdate(
             trigger = trigger,
             selector = { update ->
                 updateToData(update)
-                    .filter { filter(it) }
+                    .filter { filter?.invoke(this, it) ?: true }
                     .map { listOf(it) }
                     .fold({ Unit.left() }, { it.right() })
             }
@@ -29,9 +29,5 @@ fun <C, E> TgUpdateRegistrar<C>.onUpdate(
 }
 
 fun <C> TgUpdateRegistrar<C>.onAnyUpdate(trigger: SimpleTrigger<C, Update>) {
-    onUpdate(
-        trigger = trigger,
-        filter = { true },
-        updateToData = { Some(it) }
-    )
+    onUpdate(trigger) { Some(it) }
 }
