@@ -74,8 +74,8 @@ fun main() {
             ) {
                 basicTextHandlers()
 
-                register(First, MyStateValues.FIRST)
-                register(Second, MyStateValues.SECOND)
+                bind(First, MyStateValues.FIRST)
+                bind(Second, MyStateValues.SECOND)
             }
 
             install(
