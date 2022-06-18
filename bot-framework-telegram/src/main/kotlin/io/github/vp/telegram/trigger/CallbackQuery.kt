@@ -13,5 +13,6 @@ fun <C, E : CallbackQuery> TgUpdateRegistrar<C>.onCallbackQuery(
     filter: Filter<C, E> = { true },
     trigger: SimpleTrigger<C, E>,
 ) {
+    @Suppress("UNCHECKED_CAST")
     onUpdate(trigger, filter) { Option.fromNullable(it.asCallbackQueryUpdate()?.data as? E) }
 }

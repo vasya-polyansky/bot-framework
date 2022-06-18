@@ -15,7 +15,6 @@ inline fun <C, reified E: MediaContent> TgUpdateRegistrar<C>.onMedia(
     noinline trigger: SimpleTrigger<C, CommonMessage<E>>,
 ) {
     onContent(
-        includeMediaGroups = true,
         filter = filter,
         trigger = trigger
     )
@@ -33,7 +32,6 @@ fun <C> TgUpdateRegistrar<C>.onPhoto(
     trigger: SimpleTrigger<C, CommonMessage<PhotoContent>>,
 ) {
     onContent(
-        includeMediaGroups = true,
         filter = filter,
         trigger = trigger
     )
@@ -44,7 +42,6 @@ fun <C> TgUpdateRegistrar<C>.onVideo(
     trigger: SimpleTrigger<C, CommonMessage<VideoContent>>,
 ) {
     onContent(
-        includeMediaGroups = true,
         filter = filter,
         trigger = trigger
     )
@@ -55,7 +52,6 @@ fun <C> TgUpdateRegistrar<C>.onAudio(
     trigger: SimpleTrigger<C, CommonMessage<AudioContent>>,
 ) {
     onContent(
-        includeMediaGroups = true,
         filter = filter,
         trigger = trigger
     )
