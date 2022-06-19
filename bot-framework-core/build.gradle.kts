@@ -5,9 +5,8 @@ val logback_version: String by project
 val kotlinx_coroutines_version: String by project
 
 dependencies {
-    api("io.arrow-kt:arrow-core:$arrow_version")
-    api("io.github.microutils:kotlin-logging:$kotlin_logging_version")
-
+    implementation("io.arrow-kt:arrow-core:$arrow_version")
+    implementation("io.github.microutils:kotlin-logging:$kotlin_logging_version")
     implementation("io.ktor:ktor-server-core:$ktor_server_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
