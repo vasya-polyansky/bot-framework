@@ -3,7 +3,7 @@ package io.github.vp.core.plugin.fsm
 import io.github.vp.core.LifecycleHook
 import io.github.vp.core.handlers.Handler
 
-open class State<TEvent : Any, TEventContext>(
+abstract class State<TEvent : Any, TEventContext>(
     val init: LifecycleHook<TEventContext>? = null,
     val dispose: LifecycleHook<TEventContext>? = null,
     val handlers: Iterable<Handler<TEvent, TEventContext, *>>,

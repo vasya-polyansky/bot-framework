@@ -1,13 +1,17 @@
 package io.github.vp.core.plugin.fsm
 
+import java.lang.IllegalStateException
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Token must implement structural equality.
  * States are compared by reference equality.
  */
+// TODO:
+//  - Rewrite this binding
+//  - Improve storing of state to token binding algorithmically
 class StateToTokenBinding<TToken : Any, TEventContext> {
-    // TODO: Improve storing of state to token binding
     private val stateToToken = IdentityHashMap<State<*, TEventContext>, TToken>()
     private val tokenToState = mutableMapOf<TToken, State<*, TEventContext>>()
 
@@ -26,4 +30,12 @@ class StateToTokenBinding<TToken : Any, TEventContext> {
 
     fun getState(token: TToken): State<*, TEventContext> =
         tokenToState[token] ?: throw IllegalArgumentException("State is not registered for token: $token")
+
+    fun <TEventContext, S : State<*, TEventContext>> getStateByClass(stateClass: KClass<S>): S =
+        stateToToken.keys.firstOrNull { it::class == stateClass }
+            ?.let {
+                @Suppress("UNCHECKED_CAST")
+                it as? S
+            }
+            ?: throw IllegalStateException("State instance is not found")
 }

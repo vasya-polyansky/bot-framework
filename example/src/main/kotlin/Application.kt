@@ -34,25 +34,25 @@ class AppContext(tgContext: ITgStateContext<AppContext>) : ITgStateContext<AppCo
 // endregion
 
 
-val First = AppState {
+class First : AppState({
     init { sendMessage("Initializing first state 1️⃣") }
     dispose { sendMessage("Disposing first state 1️⃣") }
 
     onText("to second") {
         sendMessage("You're in first state 1️⃣")
-        setState(Second)
+        setState(Second::class)
     }
-}
+})
 
-val Second: AppState = AppState {
+class Second : AppState({
     init { sendMessage("Initializing second state 2️⃣") }
     dispose { sendMessage("Disposing second state 2️⃣") }
 
     onText("to first") {
         sendMessage("This message from second state 2️⃣")
-        setState(First)
+        setState(First::class)
     }
-}
+})
 
 fun main() {
     runBlocking(Dispatchers.IO) {
@@ -74,8 +74,8 @@ fun main() {
             ) {
                 basicTextHandlers()
 
-                bind(First, MyStateValues.FIRST)
-                bind(Second, MyStateValues.SECOND)
+                bind(First(), MyStateValues.FIRST)
+                bind(Second(), MyStateValues.SECOND)
             }
 
             install(
@@ -92,7 +92,7 @@ fun main() {
 fun AppRegistrar.basicTextHandlers() {
     onText("hi", ignoreCase = true) {
         sendMessage("Oh, hello. I move you to the second state ")
-        setState(Second)
+        setState(Second::class)
     }
 
     onText("name") {

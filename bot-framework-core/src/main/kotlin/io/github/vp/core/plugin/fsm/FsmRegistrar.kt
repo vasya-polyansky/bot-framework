@@ -15,11 +15,11 @@ class FsmRegistrar<TToken : Any, TEvent : Any, TEventContext>(
     fun bind(state: State<TEvent, TEventContext>, token: TToken) {
         stateTokenMap.bindStateToToken(state, token)
         state.handlers
-            .map { it.addStateFilter(tokenKey, token) }
+            .map { it.copyWithStateFilter(tokenKey, token) }
             .forEach { registerHandler(it) }
     }
 
-    private fun <R> Handler<TEvent, TEventContext, R>.addStateFilter(
+    private fun <R> Handler<TEvent, TEventContext, R>.copyWithStateFilter(
         tokenKey: AttributeKey<TToken>,
         token: TToken,
     ): Handler<TEvent, TEventContext, R> {

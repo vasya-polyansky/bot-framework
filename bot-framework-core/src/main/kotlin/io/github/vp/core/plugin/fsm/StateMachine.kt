@@ -5,6 +5,7 @@ import io.github.vp.core.stateStore.StateStore
 import io.github.vp.core.plugin.DispatcherPlugin
 import io.github.vp.core.plugin.Routing
 import io.ktor.util.*
+import kotlin.reflect.KClass
 
 
 class StateMachine<TEvent : Any, TToken : Any, TEventContext : StateContext<TEventContext>>(
@@ -16,8 +17,6 @@ class StateMachine<TEvent : Any, TToken : Any, TEventContext : StateContext<TEve
     private val stateKey = AttributeKey<State<*, TEventContext>>("FSMStateKey")
 
     private val stateToTokenBinding = StateToTokenBinding<TToken, TEventContext>()
-
-    // TODO: Remove dummy state context
     private val dummyStateContext = DummyStateContextImpl<TEventContext>()
 
     override fun install(
@@ -58,11 +57,13 @@ class StateMachine<TEvent : Any, TToken : Any, TEventContext : StateContext<TEve
         private val stateStore: StateStore<TEventContext, TToken>,
         private val stateTokenBinding: StateToTokenBinding<TToken, TEventContext>,
     ) : StateContext<TEventContext> {
-        override suspend fun TEventContext.setState(nextState: State<*, TEventContext>) {
-            currentState.dispose?.invoke(this)
-            nextState.init?.invoke(this)
+        override suspend fun TEventContext.setState(nextState: KClass<out State<*, TEventContext>>) {
+            val stateInstance = stateTokenBinding.getStateByClass(nextState)
 
-            val token = stateTokenBinding.getToken(nextState)
+            currentState.dispose?.invoke(this)
+            stateInstance.init?.invoke(this)
+
+            val token = stateTokenBinding.getToken(stateInstance)
             stateStore.setState(this, token)
         }
     }
@@ -74,7 +75,7 @@ class StateMachine<TEvent : Any, TToken : Any, TEventContext : StateContext<TEve
  * Helping class, must hot implement setState method
  */
 private class DummyStateContextImpl<TEventContext> : StateContext<TEventContext> {
-    override suspend fun TEventContext.setState(nextState: State<*, TEventContext>) {
+    override suspend fun TEventContext.setState(nextState: KClass<out State<*, TEventContext>>) {
         throw NotImplementedError("Set state must never be called on this context!")
     }
 }
