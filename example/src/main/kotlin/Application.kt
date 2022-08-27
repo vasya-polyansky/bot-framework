@@ -8,7 +8,7 @@ import dev.inmo.tgbotapi.extensions.utils.updates.retrieving.longPollingFlow
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import io.github.vp.core.Registrar
-import io.github.vp.core.dispatcher.BaseDispatcher
+import io.github.vp.core.dispatcher.FlowDispatcher
 import io.github.vp.core.plugin.Routing
 import io.github.vp.core.plugin.Logging
 import io.github.vp.core.plugin.fsm.StateMachine
@@ -63,7 +63,7 @@ fun main() {
             compareContexts = { one, another -> one.chatId == another.chatId }
         )
 
-        BaseDispatcher(bot.longPollingFlow(), configure = {
+        FlowDispatcher(bot.longPollingFlow(), configure = {
             install(Logging())
 
             install(
@@ -85,7 +85,7 @@ fun main() {
                     sendMessage("Fallback text handling (unknown)")
                 }
             }
-        }).start(this)
+        }).startAndWait(this)
     }
 }
 
