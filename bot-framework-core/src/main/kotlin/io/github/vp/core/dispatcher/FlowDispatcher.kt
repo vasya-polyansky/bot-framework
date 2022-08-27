@@ -5,7 +5,7 @@ import io.github.vp.core.plugin.DispatcherPlugin
 import io.ktor.util.pipeline.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import mu.KotlinLogging
@@ -13,14 +13,14 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger { }
 
 
-class BaseDispatcher<TEvent : Any>(
+class FlowDispatcher<TEvent : Any>(
     private val eventFlow: Flow<TEvent>,
     private val onException: suspend (Exception) -> Unit =
-        { logger.error("Error while processing event", it) }
+        { logger.error("Error while processing event", it) },
 ) : Dispatcher<TEvent> {
     private val pipeline = EventPipeline<TEvent>()
 
-    override fun start(scope: CoroutineScope) {
+    override suspend fun startAndWait(scope: CoroutineScope) {
         logger.info { "Starting dispatcher..." }
 
         eventFlow
@@ -32,7 +32,7 @@ class BaseDispatcher<TEvent : Any>(
                 }
             }
             .onStart { logger.info { "Dispatcher started 🚀" } }
-            .launchIn(scope)
+            .collect()
     }
 
     override fun <TConfiguration> install(
@@ -51,5 +51,5 @@ fun <TEvent : Any> BaseDispatcher(
         { logger.error("Error while processing event", it) },
     configure: Dispatcher<TEvent>.() -> Unit = {},
 ): Dispatcher<TEvent> {
-    return BaseDispatcher(eventFlow, onException).apply { configure() }
+    return FlowDispatcher(eventFlow, onException).apply { configure() }
 }

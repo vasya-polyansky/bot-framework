@@ -10,5 +10,5 @@ interface Dispatcher<TEvent : Any> {
         configure: TConfiguration.() -> Unit = {},
     )
 
-    fun start(scope: CoroutineScope)
+    suspend fun startAndWait(scope: CoroutineScope)
 }
